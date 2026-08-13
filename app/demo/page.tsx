@@ -1,4 +1,4 @@
-export const metadata = { title: 'Mobile banking demo' };
+export const metadata = { title: 'Mobile banking demo', robots: { index: false, follow: false } };
 
 export default function DemoPage() {
   return (

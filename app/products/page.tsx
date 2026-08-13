@@ -1,37 +1,48 @@
 import Link from 'next/link';
-import { products, formatNaira, Product } from '@/lib/data';
+import ProductCard from '@/components/ProductCard';
+import { products, Product } from '@/lib/data';
 
-export const metadata = { title: 'Products' };
+export const metadata = {
+  title: 'Products',
+  description: 'Shop genuine solar inverters, lithium batteries, solar panels and home appliances from Leaf Solar in Ibadan.',
+};
 
-const cats = ['All','Inverter','Battery','Solar Panel','Appliance','Charger'] as const;
+const categories = ['All', 'Inverter', 'Battery', 'Solar Panel', 'Appliance'] as const;
 
-export default function Products({ searchParams }: { searchParams: { c?: string } }) {
-  const active = (searchParams.c || 'All') as string;
-  const list: Product[] = active === 'All' ? products : products.filter(p => p.category === active);
+export default async function Products({ searchParams }: { searchParams: Promise<{ c?: string }> }) {
+  const { c } = await searchParams;
+  const requested = c || 'All';
+  const active = categories.includes(requested as (typeof categories)[number]) ? requested : 'All';
+  const list: Product[] = active === 'All' ? products : products.filter(product => product.category === active);
+
   return (
-    <section className="container-x py-14">
-      <h1 className="font-display text-4xl font-extrabold">All products</h1>
-      <p className="mt-2 text-gray-600">Genuine, warrantied equipment — delivered nationwide.</p>
-      <div className="mt-6 flex flex-wrap gap-2">
-        {cats.map(c => (
-          <Link key={c} href={c==='All'?'/products':`/products?c=${encodeURIComponent(c)}`}
-            className={`rounded-full px-4 py-2 text-sm font-semibold border ${active===c ? 'bg-gray-900 text-white border-gray-900' : 'border-gray-200 text-gray-700 hover:border-gray-900'}`}>{c}</Link>
-        ))}
-      </div>
-      <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {list.map(p => (
-          <Link key={p.slug} href={`/products/${p.slug}`} className="group rounded-2xl bg-white p-4 border border-gray-100 hover:shadow-lg transition">
-            <div className={`aspect-square rounded-xl bg-gradient-to-br ${p.image} mb-4 flex items-center justify-center text-3xl font-bold text-white/90`}>{p.brand[0]}</div>
-            <div className="text-xs uppercase tracking-wider text-gray-500">{p.brand} · {p.category}</div>
-            <div className="mt-1 font-semibold leading-snug">{p.name}</div>
-            <div className="mt-1 text-xs text-amber-500">{'★'.repeat(Math.round(p.rating))} <span className="text-gray-400">{p.rating.toFixed(1)}</span></div>
-            <div className="mt-3 flex items-baseline gap-2">
-              <span className="text-lg font-extrabold text-leaf-700">{formatNaira(p.price)}</span>
-              {p.oldPrice && <span className="text-xs text-gray-400 line-through">{formatNaira(p.oldPrice)}</span>}
-            </div>
-          </Link>
-        ))}
-      </div>
-    </section>
+    <>
+      <section className="border-b border-gray-100 bg-[#f5f6f2]">
+        <div className="container-x py-14 md:py-20">
+          <p className="eyebrow">Genuine &amp; warrantied</p>
+          <h1 className="mt-2 font-display text-4xl font-extrabold md:text-5xl">Products for a better-powered home</h1>
+          <p className="mt-4 max-w-2xl text-lg text-gray-600">Browse current solar equipment and energy-efficient appliances. Contact us to confirm stock and arrange delivery.</p>
+        </div>
+      </section>
+
+      <section className="container-x py-12">
+        <div className="flex flex-wrap gap-2" aria-label="Product categories">
+          {categories.map(category => (
+            <Link
+              key={category}
+              href={category === 'All' ? '/products' : `/products?c=${encodeURIComponent(category)}`}
+              className={`rounded-full border px-4 py-2.5 text-sm font-semibold transition ${active === category ? 'border-gray-950 bg-gray-950 text-white' : 'border-gray-200 bg-white text-gray-700 hover:border-gray-950'}`}
+              aria-current={active === category ? 'page' : undefined}
+            >
+              {category}
+            </Link>
+          ))}
+        </div>
+
+        <div className="mt-9 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {list.map(product => <ProductCard key={product.slug} product={product} />)}
+        </div>
+      </section>
+    </>
   );
 }

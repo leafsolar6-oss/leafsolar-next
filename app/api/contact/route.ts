@@ -9,10 +9,12 @@ const schema = z.object({
   message: z.string().optional(),
 });
 
+const deliveryError = 'Online enquiries are temporarily unavailable. Please use WhatsApp or call +234 703 756 1216.';
+
 export async function POST(req: Request) {
   const body = await req.json().catch(() => null);
   const parsed = schema.safeParse(body);
-  if (!parsed.success) return NextResponse.json({ error: 'Invalid input' }, { status: 400 });
+  if (!parsed.success) return NextResponse.json({ error: 'Please check the required fields and try again.' }, { status: 400 });
   const d = parsed.data;
 
   const subject = `New lead — ${d.name} (${d.phone})`;
@@ -20,26 +22,34 @@ export async function POST(req: Request) {
     `Name: ${d.name}`,
     `Phone: ${d.phone}`,
     `Email: ${d.email || '—'}`,
-    `Interested in: ${d.pkg || 'Just browsing'}`,
-    ``,
+    `Interested in: ${d.pkg || 'General enquiry'}`,
+    '',
     d.message || '',
   ].join('\n');
 
-  // Try Resend if configured; otherwise log (Vercel function logs).
   const key = process.env.RESEND_API_KEY;
   const to = process.env.CONTACT_TO_EMAIL || 'hello@leafsolar.ng';
   const from = process.env.OTP_FROM_EMAIL || 'Leaf Solar <no-reply@leafsolar.ng>';
-  if (key) {
-    try {
-      const res = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ from, to, subject, text }),
-      });
-      if (!res.ok) console.error('Resend failed', await res.text());
-    } catch (e) { console.error(e); }
-  } else {
-    console.log('[contact]', subject, '\n', text);
+
+  if (!key) {
+    console.error('Contact delivery is unavailable: RESEND_API_KEY is not configured.');
+    return NextResponse.json({ error: deliveryError }, { status: 503 });
+  }
+
+  try {
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ from, to, subject, text }),
+    });
+
+    if (!response.ok) {
+      console.error('Resend contact delivery failed', response.status, await response.text());
+      return NextResponse.json({ error: deliveryError }, { status: 502 });
+    }
+  } catch (error) {
+    console.error('Resend contact delivery failed', error);
+    return NextResponse.json({ error: deliveryError }, { status: 502 });
   }
 
   return NextResponse.json({ ok: true });
