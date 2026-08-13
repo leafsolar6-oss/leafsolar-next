@@ -1,0 +1,1196 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<meta name="theme-color" content="#ffffff" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="Wells Fargo" />
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+<link rel="icon" href="icons/icon-192.png" />
+<link rel="manifest" href="manifest.webmanifest" />
+<title>Wells Fargo Mobile</title>
+<style>
+  :root{
+    --wf-red:#D71E28;--wf-red-dark:#B3151E;
+    --ink:#111;--ink-2:#333;--muted:#6b6b6b;
+    --line:#e3e3e3;--line-soft:#efefef;
+    --soft:#f5f4f1;--soft-2:#faf9f7;
+    --navy:#0a3a70;--fargo:#7b2d8e;--green:#1a7f37;--gold:#c79400;
+    --safe-top:env(safe-area-inset-top);--safe-bot:env(safe-area-inset-bottom);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;background:#fff;color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    font-size:16px;line-height:1.4;overscroll-behavior-y:contain;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+  body{touch-action:pan-x pan-y;overscroll-behavior-y:contain;}
+  button{font-family:inherit} a{color:var(--navy)}
+  .app{max-width:480px;margin:0 auto;min-height:100vh;background:#fff;position:relative;
+    padding-top:var(--safe-top);padding-bottom:var(--safe-bot)}
+  .serif{font-family:Georgia,"Times New Roman",serif}
+
+  /* splash */
+  .splash{position:fixed;inset:0;background:#fff;z-index:400;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;transition:opacity .4s ease;padding-bottom:60px}
+  .splash.hide{opacity:0;pointer-events:none}
+  .splash .stagecoach{width:88px;height:88px;color:var(--wf-red);margin-bottom:24px}
+  .splash .wm{font-family:Georgia,serif;font-weight:700;font-size:32px;letter-spacing:1.2px;color:#111;text-transform:uppercase}
+  .splash .bar{width:220px;height:3px;background:#eee;border-radius:3px;overflow:hidden;margin-top:34px}
+  .splash .bar i{display:block;height:100%;width:30%;background:var(--wf-red);animation:slide 1.1s ease-in-out infinite}
+  @keyframes slide{0%{transform:translateX(-120%)}100%{transform:translateX(420%)}}
+  .splash .msg{margin-top:16px;color:#777;font-size:13px;min-height:18px}
+  .splash .foot{position:absolute;bottom:calc(28px + var(--safe-bot));color:#bbb;font-size:11px}
+
+  /* screens */
+  .screen{display:none;min-height:100vh;background:#fff;padding-bottom:88px}
+  .screen.active{display:block}
+
+  /* headers */
+  .nav-head{background:#fff;padding:12px 16px 10px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--line-soft);position:sticky;top:0;z-index:30}
+  .wm{font-family:Georgia,serif;font-weight:700;font-size:22px;letter-spacing:.6px;color:#111;text-transform:uppercase}
+  .nav-head .wm{font-size:18px;flex:1}
+  .search{flex:1;max-width:240px;background:var(--soft);border-radius:22px;padding:9px 14px;
+    display:flex;align-items:center;gap:8px;color:#555;font-size:14px;border:0;cursor:pointer}
+  .fargo-dot{width:22px;height:22px;border-radius:6px;background:var(--fargo);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-family:Georgia,serif;font-weight:700;font-style:italic;font-size:14px;margin-left:auto}
+  .iconbtn{background:none;border:0;color:#333;width:36px;height:36px;display:flex;align-items:center;justify-content:center;position:relative;flex-shrink:0}
+  .iconbtn .dot{position:absolute;top:6px;right:6px;width:8px;height:8px;border-radius:50%;background:var(--wf-red);border:1.5px solid #fff}
+  .signoff{font-size:13px;color:var(--navy);background:none;border:0;font-weight:600;flex-shrink:0}
+
+  /* sub-header (back) */
+  .sub-head{position:sticky;top:0;background:#fff;z-index:20;display:flex;align-items:center;gap:6px;
+    padding:8px 10px;border-bottom:1px solid var(--line-soft)}
+  .sub-head .title{flex:1;text-align:center;font-weight:600;font-size:15px;padding-right:34px}
+  .back{background:none;border:0;color:var(--navy);font-size:14px;font-weight:600;display:flex;align-items:center;gap:4px;padding:8px;cursor:pointer}
+
+  /* buttons */
+  .btn-primary{background:#e4e4e4;color:#9a9a9a;border:0;border-radius:28px;padding:14px 18px;font-size:16px;font-weight:600;
+    display:inline-flex;align-items:center;justify-content:center;gap:9px;cursor:not-allowed;transition:background .15s,color .15s}
+  .btn-primary.ready{background:#111;color:#fff;cursor:pointer}
+  .btn-primary.ready:active{background:#000}
+  .btn-primary.block{width:100%}
+  .btn-ghost{background:#fff;color:#111;border:1.5px solid #111;border-radius:28px;padding:13px 18px;font-size:15px;font-weight:600;cursor:pointer}
+  .btn-ghost.block{width:100%}
+  .btn-primary .spin{width:16px;height:16px;border:2px solid rgba(255,255,255,.5);border-top-color:#fff;border-radius:50%;animation:rot .7s linear infinite;display:none}
+  .btn-primary.loading .spin{display:inline-block}
+  .btn-primary.loading .lk{display:none}
+  .btn-primary.loading{pointer-events:none;opacity:.9}
+  @keyframes rot{to{transform:rotate(360deg)}}
+
+  /* sign on */
+  .signon-wrap{padding:0 28px;min-height:100vh;display:flex;flex-direction:column}
+  .so-head{padding-top:20px;display:flex;align-items:center;justify-content:space-between}
+  .so-loc{background:none;border:0;color:#333;display:flex;align-items:center;gap:6px;font-size:14px;padding:6px}
+  .so-greet{font-family:Georgia,serif;font-size:36px;line-height:1.15;color:#111;margin-top:36px;font-weight:400}
+  .so-card{margin-top:24px}
+  .uf{position:relative;margin-bottom:18px}
+  .uf input,.uf select{width:100%;border:0;border-bottom:1.5px solid #d0d0d0;padding:24px 42px 10px 0;
+    font-size:17px;outline:none;background:transparent;color:#111;border-radius:0}
+  .uf select{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23555' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");background-repeat:no-repeat;background-position:right 4px top 28px}
+  .uf input:focus,.uf select:focus{border-bottom-color:#111}
+  .uf label{position:absolute;left:0;top:22px;color:#777;font-size:17px;pointer-events:none;transition:all .15s ease}
+  .uf.filled label,.uf input:focus + label,.uf select:focus + label{top:4px;font-size:12px;color:#555}
+  .uf .ic{position:absolute;right:0;top:18px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;color:#555;background:none;border:0}
+  .so-row{display:flex;gap:18px;align-items:center;margin:8px 0 22px;flex-wrap:wrap}
+  .chk{display:flex;align-items:center;gap:8px;font-size:14px;color:#222;cursor:pointer}
+  .chk input{width:18px;height:18px;accent-color:#111}
+  .chk a{color:#222;text-decoration:underline}
+  .so-forgot{margin-top:18px;text-align:center}
+  .so-forgot a{color:var(--navy);font-size:14px;text-decoration:none}
+  .err{background:#fbeaea;color:var(--wf-red-dark);padding:10px 12px;border-radius:8px;font-size:13px;margin-top:14px;display:none}
+  .err.show{display:block}
+  .so-promo{margin:32px -28px 0;background:linear-gradient(180deg,#f8e8b8,#efcb6b);padding:18px 28px 22px;display:flex;align-items:center;gap:16px}
+  .so-promo .pic{width:84px;height:62px;border-radius:10px;background:linear-gradient(135deg,#e8b923,#c79400);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .so-promo .pt{font-size:16px;color:#3a2a00;font-weight:600}
+  .so-promo .ps{font-size:13px;color:#5a4400;margin-top:2px}
+  .so-promo .pgo{margin-left:auto;width:36px;height:36px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;color:#c79400;flex-shrink:0}
+  .so-foot{padding:20px 0 24px;text-align:center;color:#999;font-size:11px}
+
+  /* OTP */
+  .v-wrap{padding:0 28px;min-height:100vh;display:flex;flex-direction:column}
+  .v-envelope{width:84px;height:84px;border-radius:50%;background:#fbeaeb;color:var(--wf-red);display:flex;align-items:center;justify-content:center;margin:30px auto 18px}
+  .v-title{font-family:Georgia,serif;font-size:26px;font-weight:400;color:#111;text-align:center;margin:0}
+  .v-sub{font-size:14.5px;color:#444;text-align:center;margin:10px 0 0;line-height:1.5}
+  .v-sub b{color:#111}
+  .v-codebox{display:flex;gap:8px;justify-content:center;margin:28px 0 10px}
+  .v-cell{width:46px;height:56px;border:1.5px solid #cfcfcf;border-radius:10px;text-align:center;font-size:22px;font-weight:600;color:#111;background:#fafafa;outline:none}
+  .v-cell:focus{border-color:#111;background:#fff}
+  .v-cell.filled{border-color:#111;background:#fff}
+  .v-cell.err{border-color:var(--wf-red);background:#fbeaeb}
+  .v-err{color:var(--wf-red-dark);font-size:13px;text-align:center;min-height:18px;margin:6px 0 8px}
+  .v-meta{display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:13px}
+  .v-resend{color:var(--navy);text-decoration:none;font-weight:600;background:none;border:0;cursor:pointer;padding:0}
+  .v-resend:disabled{color:#aaa;cursor:not-allowed}
+  .v-hint{margin-top:24px;background:#f6f5f2;border:1px solid #e6e3dc;border-radius:10px;padding:12px 14px;font-size:13px;color:#444;line-height:1.55}
+  .v-hint b{color:var(--wf-red);font-size:18px;letter-spacing:3px}
+
+  /* forgot */
+  .fg-wrap{padding:0 28px;min-height:100vh;display:flex;flex-direction:column}
+  .fg-title{font-family:Georgia,serif;font-size:28px;font-weight:400;color:#111;margin:18px 0 6px}
+  .fg-sub{font-size:14.5px;color:#555;line-height:1.55;margin:0 0 22px}
+  .fg-tabs{display:flex;border-bottom:1px solid var(--line);margin-bottom:18px}
+  .fg-tab{flex:1;background:none;border:0;padding:12px 0;font-size:14px;font-weight:600;color:#777;border-bottom:2px solid transparent;cursor:pointer}
+  .fg-tab.active{color:#111;border-bottom-color:#111}
+  .fg-success{text-align:center;padding:24px 8px}
+  .fg-success .sc{width:72px;height:72px;border-radius:50%;background:#e7f5ec;color:var(--green);display:flex;align-items:center;justify-content:center;margin:8px auto 16px}
+  .fg-success h3{font-family:Georgia,serif;font-weight:400;font-size:22px;margin:0 0 6px}
+  .fg-success p{color:#555;font-size:14px;line-height:1.55;margin:0}
+  .fg-success .to{font-weight:600;color:#111}
+
+  /* home */
+  .hello{padding:18px 20px 4px}
+  .hello h2{margin:0;font-family:Georgia,serif;font-size:26px;font-weight:400}
+  .quickstrip{display:flex;gap:8px;padding:12px 16px 4px;overflow-x:auto;scrollbar-width:none}
+  .quickstrip::-webkit-scrollbar{display:none}
+  .qpill{background:none;border:1.5px solid #d8d8d8;border-radius:18px;padding:8px 14px;font-size:13.5px;color:#222;white-space:nowrap;cursor:pointer;font-weight:500;display:flex;align-items:center;gap:6px;flex:0 0 auto}
+  .acct-card{margin:10px 16px;background:#fff;border:1px solid #e6e6e6;border-radius:14px;padding:18px;cursor:pointer}
+  .acct-card:active{background:#fafafa}
+  .acct-card .row{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+  .acct-card .an{font-size:13px;color:#444;letter-spacing:.4px;text-transform:uppercase;font-weight:600}
+  .acct-card .ab{font-size:30px;font-weight:400;color:#111;margin-top:6px;letter-spacing:-.5px}
+  .acct-card .al{font-size:13px;color:#777;margin-top:4px}
+  .acct-card .chev{color:#bbb;font-size:22px;align-self:center}
+  .acct-card .inset{margin-top:14px;padding-top:14px;border-top:1px dashed #ececec;display:flex;gap:12px}
+  .acct-card .inset .ib{flex:1;font-size:12px;color:#777}
+  .acct-card .inset .ib b{display:block;color:#111;font-size:14px;font-weight:600;margin-top:2px}
+
+  .card{margin:12px 16px;border:1px solid #e6e6e6;border-radius:14px;padding:14px;display:flex;gap:12px;align-items:center;cursor:pointer;background:#fff}
+  .card:active{background:#fafafa}
+  .card .ci{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .card .ci.green{border:2.5px solid var(--green);color:var(--green);font-weight:700}
+  .card .ci.red{background:#fbeaeb;color:var(--wf-red)}
+  .card .ci.gold{background:#fdf2d2;color:#a07700}
+  .card .ci.navy{background:#e8eff7;color:var(--navy)}
+  .card .ct{font-size:14.5px;font-weight:600}
+  .card .cs{font-size:12.5px;color:#777;margin-top:2px}
+  .card .arr{margin-left:auto;color:#bbb}
+
+  .promo-banner{margin:14px 16px;border-radius:14px;overflow:hidden;background:linear-gradient(135deg,#1a1a1a,#3a0a0a);color:#fff;padding:18px;display:flex;align-items:center;gap:14px}
+  .promo-banner .pi{width:54px;height:54px;border-radius:50%;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .promo-banner .pt1{font-size:11px;letter-spacing:1px;color:#ffd880;font-weight:700;text-transform:uppercase}
+  .promo-banner .pt2{font-family:Georgia,serif;font-size:18px;margin-top:2px}
+  .promo-banner .pt3{font-size:12.5px;color:#d6d6d6;margin-top:4px}
+
+  /* detail */
+  .d-hero{padding:8px 20px 18px}
+  .d-hero .dn{font-size:13px;color:#444;letter-spacing:.4px;text-transform:uppercase;font-weight:600}
+  .d-hero .db{font-size:38px;font-weight:400;color:#111;margin-top:8px;letter-spacing:-.5px}
+  .d-hero .da{font-size:14px;color:#777;margin-top:4px}
+  .d-chips{display:flex;gap:8px;padding:0 16px 12px;overflow-x:auto}
+  .d-chip{flex:0 0 auto;background:var(--soft);border:0;border-radius:22px;padding:9px 16px;font-size:13.5px;font-weight:600;color:#222;display:flex;align-items:center;gap:6px;white-space:nowrap;cursor:pointer}
+  .chart-card{margin:6px 16px 14px;border:1px solid #e6e6e6;border-radius:14px;padding:16px 14px 10px}
+  .chart-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px}
+  .chart-label{font-size:11.5px;color:#777;text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+  .chart-val{font-size:22px;font-weight:500;color:#111;margin-top:2px}
+  .chart-delta{font-size:12px;font-weight:700;padding:3px 9px;border-radius:14px;background:#e7f5ec;color:var(--green);align-self:center}
+  .chart-svg{width:100%;height:140px;display:block;margin-top:6px}
+  .chart-ranges{display:flex;gap:6px;margin-top:10px;justify-content:center}
+  .chart-ranges button{background:#f3f1ed;border:0;border-radius:14px;padding:6px 12px;font-size:12px;font-weight:600;color:#444;cursor:pointer}
+  .chart-ranges button.active{background:#111;color:#fff}
+  .chart-axis{display:flex;justify-content:space-between;font-size:10.5px;color:#999;margin-top:2px}
+
+  .sec-h{padding:18px 20px 8px;font-size:12px;color:#777;font-weight:700;letter-spacing:.6px;text-transform:uppercase;display:flex;justify-content:space-between;align-items:center}
+  .sec-h a{font-size:12.5px;color:var(--navy);text-decoration:none;font-weight:600;text-transform:none;letter-spacing:0}
+  .tx{display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:1px solid var(--line-soft);background:#fff}
+  .tx .ic{width:40px;height:40px;border-radius:50%;background:#e7f5ec;color:var(--green);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .tx.debit .ic{background:#f1f1f1;color:#666}
+  .tx .meta{flex:1;min-width:0}
+  .tx .t1{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .tx .t2{font-size:12.5px;color:#888;margin-top:2px}
+  .tx .amt{font-weight:600;font-size:15px;color:var(--green);white-space:nowrap}
+  .tx.debit .amt{color:#111}
+  .pill{display:inline-block;font-size:9.5px;padding:1px 6px;border-radius:4px;background:#f5edc5;color:#7a5b00;margin-left:6px;text-transform:uppercase;letter-spacing:.4px;font-weight:700;vertical-align:middle}
+
+  /* feature screens */
+  .feat{padding:0 0 20px}
+  .feat .lead{padding:18px 20px 4px;font-size:14.5px;color:#444;line-height:1.5}
+  .form-card{margin:14px 16px;padding:18px 16px;border:1px solid #e6e6e6;border-radius:14px;background:#fff}
+  .form-card h3{margin:0 0 12px;font-family:Georgia,serif;font-weight:400;font-size:18px}
+  .field{margin-bottom:16px}
+  .field label{display:block;font-size:12px;color:#666;font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px}
+  .field input,.field select,.field textarea{width:100%;border:1.5px solid #d6d6d6;border-radius:10px;padding:12px 14px;font-size:15px;background:#fafafa;outline:none;color:#111}
+  .field input:focus,.field select:focus,.field textarea:focus{border-color:#111;background:#fff}
+  .field textarea{min-height:80px;resize:vertical}
+  .field .hint{font-size:12px;color:#888;margin-top:5px}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .amount-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}
+  .amount-pad button{background:#f3f1ed;border:0;border-radius:12px;padding:14px;font-size:17px;font-weight:600;cursor:pointer}
+  .amount-pad .zero{grid-column:span 2}
+
+  .list-group{margin:8px 16px;border:1px solid #e6e6e6;border-radius:14px;overflow:hidden;background:#fff}
+  .li{display:flex;align-items:center;gap:14px;padding:14px 16px;border-bottom:1px solid var(--line-soft);cursor:pointer;background:#fff;width:100%;border-left:0;border-right:0;border-top:0;text-align:left}
+  .li:last-child{border-bottom:0}
+  .li:active{background:#fafafa}
+  .li .lic{width:36px;height:36px;border-radius:50%;background:var(--soft);color:#444;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .li .lit{flex:1}
+  .li .lit .l1{font-size:15px;color:#111}
+  .li .lit .l2{font-size:12.5px;color:#888;margin-top:2px}
+  .li .liv{font-size:14px;color:#111;font-weight:600}
+  .li .chevron{color:#bbb}
+
+  .toggle{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--line-soft)}
+  .toggle:last-child{border-bottom:0}
+  .switch{position:relative;width:46px;height:26px;flex-shrink:0}
+  .switch input{opacity:0;width:0;height:0}
+  .slider{position:absolute;inset:0;background:#ccc;border-radius:13px;transition:.2s;cursor:pointer}
+  .slider:before{content:"";position:absolute;height:22px;width:22px;left:2px;top:2px;background:#fff;border-radius:50%;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+  .switch input:checked + .slider{background:var(--green)}
+  .switch input:checked + .slider:before{transform:translateX(20px)}
+  .toggle .tlabel{font-size:15px}
+  .toggle .tsub{font-size:12.5px;color:#888;margin-top:2px}
+
+  .seg{display:flex;background:var(--soft);border-radius:10px;padding:3px;margin:0 16px 10px}
+  .seg button{flex:1;background:none;border:0;padding:9px;border-radius:8px;font-size:13.5px;font-weight:600;color:#666;cursor:pointer}
+  .seg button.active{background:#fff;color:#111;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+
+  /* deposit check */
+  .check-placeholder{aspect-ratio:2.2/1;background:#f8f8f6;border:1.5px dashed #c9c9c9;border-radius:12px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;color:#777;gap:8px;margin:8px 0}
+  .check-placeholder b{color:#333;font-size:14px}
+
+  /* Zelle */
+  .zelle-hero{background:linear-gradient(135deg,#6a0dad,#4b0082);color:#fff;margin:14px 16px;border-radius:14px;padding:18px;display:flex;align-items:center;gap:14px}
+  .zelle-hero .z{font-family:Georgia,serif;font-size:34px;font-style:italic;font-weight:700;letter-spacing:1px}
+  .zelle-hero p{margin:0;font-size:13px;line-height:1.45}
+  .recips{display:flex;gap:14px;padding:8px 16px;overflow-x:auto}
+  .recip{flex:0 0 auto;text-align:center;width:64px;cursor:pointer}
+  .recip .ra{width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,#d71e28,#8a0d14);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;margin:0 auto 6px}
+  .recip .rn{font-size:11.5px;color:#222;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+  /* investment */
+  .port-hero{background:#111;color:#fff;margin:14px 16px;border-radius:14px;padding:18px}
+  .port-hero .pl{font-size:12px;opacity:.7;text-transform:uppercase;letter-spacing:.5px}
+  .port-hero .pv{font-size:32px;font-weight:400;margin-top:6px;font-family:Georgia,serif}
+  .port-hero .pc{font-size:13px;color:#7be09a;margin-top:4px}
+  .holding{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--line-soft)}
+  .holding:last-child{border-bottom:0}
+  .holding .hs b{font-size:15px;display:block}
+  .holding .hs span{font-size:12px;color:#888}
+  .holding .hv{text-align:right}
+  .holding .hv b{font-size:15px;display:block}
+  .holding .hv span{font-size:12px;color:var(--green)}
+  .holding .hv.down span{color:var(--wf-red)}
+
+  /* FICO */
+  .fico-hero{margin:14px 16px;border:1px solid #e6e6e6;border-radius:14px;padding:22px;text-align:center;background:linear-gradient(180deg,#fff,#f7fbf8)}
+  .fico-ring{width:160px;height:160px;margin:0 auto 10px;position:relative}
+  .fico-ring svg{transform:rotate(-90deg)}
+  .fico-ring .num{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .fico-ring .num b{font-size:42px;font-weight:400;color:#111;font-family:Georgia,serif;line-height:1}
+  .fico-ring .num span{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-top:4px}
+  .fico-tag{display:inline-block;background:#e7f5ec;color:var(--green);font-weight:700;padding:4px 12px;border-radius:14px;font-size:13px}
+
+  /* atm map */
+  .map{height:220px;background:
+    radial-gradient(circle at 30% 40%,#e8f0e8 0,#e8f0e8 8px,transparent 9px),
+    radial-gradient(circle at 70% 60%,#e8f0e8 0,#e8f0e8 6px,transparent 7px),
+    linear-gradient(120deg,#eef2ee,#e3e9e3);
+    position:relative;border-radius:0 0 14px 14px;margin:0 16px}
+  .mappin{position:absolute;width:30px;height:30px;margin:-15px 0 0 -15px;display:flex;align-items:center;justify-content:center;color:var(--wf-red)}
+  .map-me{position:absolute;width:18px;height:18px;margin:-9px 0 0 -9px;border-radius:50%;background:#1976d2;border:3px solid #fff;box-shadow:0 0 0 3px rgba(25,118,210,.25)}
+
+  /* messages */
+  .msg-unread{background:#f0f6ff !important}
+  .msg-unread::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--navy);display:inline-block;margin-right:10px;flex-shrink:0}
+
+  /* Fargo chat */
+  .chat{display:flex;flex-direction:column;gap:10px;padding:16px;min-height:60vh}
+  .bubble{max-width:82%;padding:11px 15px;border-radius:16px;font-size:14.5px;line-height:1.4}
+  .bubble.bot{background:var(--soft);color:#111;border-bottom-left-radius:4px;align-self:flex-start}
+  .bubble.me{background:var(--navy);color:#fff;border-bottom-right-radius:4px;align-self:flex-end}
+  .chat-input{position:sticky;bottom:0;background:#fff;padding:10px 12px;border-top:1px solid var(--line);display:flex;gap:8px;align-items:center}
+  .chat-input input{flex:1;border:1.5px solid #d6d6d6;border-radius:22px;padding:11px 16px;font-size:15px;outline:none}
+  .chat-input input:focus{border-color:#111}
+  .chat-send{background:var(--fargo);color:#fff;border:0;border-radius:50%;width:42px;height:42px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+
+  /* tabbar */
+  .tabbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;
+    background:#fff;border-top:1px solid #ddd;display:grid;grid-template-columns:repeat(5,1fr);
+    padding-bottom:var(--safe-bot);z-index:50}
+  .tab{background:none;border:0;padding:8px 2px 7px;display:flex;flex-direction:column;align-items:center;gap:3px;
+    color:#8a8a8a;font-size:10.5px;cursor:pointer;font-weight:500}
+  .tab.active{color:#111}
+  .tab .ex{width:32px;height:32px;border-radius:50%;background:var(--wf-red);display:flex;align-items:center;justify-content:center;color:#fff;margin-bottom:1px}
+  .tab svg{width:22px;height:22px}
+
+  /* sheet / toast */
+  .mask{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;z-index:200}
+  .mask.show{display:block}
+  .sheet{position:fixed;left:50%;bottom:0;transform:translateX(-50%) translateY(100%);
+    width:100%;max-width:480px;background:#fff;border-radius:18px 18px 0 0;padding:10px 18px calc(22px + var(--safe-bot));
+    transition:transform .28s cubic-bezier(.2,.8,.2,1);z-index:201;max-height:85vh;overflow-y:auto}
+  .sheet.show{transform:translateX(-50%) translateY(0)}
+  .grip{width:40px;height:4px;background:#ddd;border-radius:3px;margin:6px auto 14px}
+  .sheet h3{margin:0 0 10px;font-size:20px;font-family:Georgia,serif;font-weight:400}
+  .mitem{display:flex;align-items:center;gap:14px;padding:14px 4px;border-bottom:1px solid #f0f0f0;cursor:pointer;background:none;border-left:0;border-right:0;border-top:0;width:100%;text-align:left}
+  .mitem:last-child{border-bottom:0}
+  .mitem .mi{width:34px;height:34px;border-radius:50%;background:var(--soft);color:#444;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .mitem .ml{font-size:15px;color:#111;flex:1}
+  .toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%) translateY(20px);background:#222;color:#fff;
+    padding:11px 18px;border-radius:24px;font-size:13px;opacity:0;pointer-events:none;transition:all .2s;z-index:300;max-width:82%;text-align:center}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  .hide{display:none !important}
+  .fade{animation:fade .2s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+
+  <!-- SPLASH -->
+  <div class="splash" id="splash">
+    <svg class="stagecoach" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="26" cy="74" r="10"/><circle cx="74" cy="74" r="10"/>
+      <path d="M20 74V46h46v28"/><path d="M20 46h-9M66 46l11-9v9h11M30 46l8-14h20l8 14"/><path d="M11 74H3M89 74h8"/>
+    </svg>
+    <div class="wm">Wells Fargo</div>
+    <div class="bar"><i></i></div>
+    <div class="msg" id="splash-msg">Starting Wells Fargo Mobile…</div>
+    <div class="foot">Wells Fargo Mobile®</div>
+  </div>
+
+  <!-- SIGN ON -->
+  <section class="screen" id="screen-login">
+    <div class="signon-wrap">
+      <div class="so-head">
+        <div class="wm">Wells Fargo</div>
+        <button class="so-loc" onclick="toast('Location services')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s-8-7-8-13a8 8 0 1 1 16 0c0 6-8 13-8 13z"/><circle cx="12" cy="9" r="2.5"/></svg>
+        </button>
+      </div>
+      <div class="so-greet" id="greet">Good morning</div>
+      <div class="so-card">
+        <div class="err" id="err">Enter a valid username and password.</div>
+        <div class="uf" id="uf-u">
+          <input id="u" type="text" autocomplete="username" autocapitalize="off" autocorrect="off"/>
+          <label for="u">Username</label>
+          <button class="ic" type="button" onclick="toast('Biometric sign-on')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 11v3a2 2 0 0 0 4 0c0-2-2-3-2-3"/><path d="M8 11a4 4 0 1 1 8 0v3"/><path d="M5 11a7 7 0 0 1 14 0"/><path d="M12 17v2a2 2 0 0 1-4 0"/></svg></button>
+        </div>
+        <div class="uf" id="uf-p">
+          <input id="p" type="password" autocomplete="current-password"/>
+          <label for="p">Password</label>
+          <button class="ic" type="button" id="eye"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
+        <div class="so-row">
+          <label class="chk"><input type="checkbox" id="save" checked/> Save username</label>
+          <label class="chk"><input type="checkbox" id="setup"/> <a href="#" onclick="toast('Set up sign-on options');return false;">Set up…</a></label>
+        </div>
+        <button class="btn-primary block" id="signon" disabled>
+          <span class="lk"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span>
+          <span class="spin"></span><span id="signon-label">Sign on</span>
+        </button>
+        <div class="so-forgot"><a href="#" onclick="openForgot();return false;">Forgot username or password?</a></div>
+      </div>
+      <div style="flex:1"></div>
+      <div class="so-promo" onclick="toast('Explore products')">
+        <div class="pic"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
+        <div><div class="pt">Explore our products</div><div class="ps">Find your fit</div></div>
+        <div class="pgo"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></div>
+      </div>
+      <div class="so-foot">Wells Fargo Mobile®</div>
+    </div>
+  </section>
+
+  <!-- OTP -->
+  <section class="screen" id="screen-verify">
+    <div class="v-wrap">
+      <div class="sub-head"><button class="back" onclick="backToLogin()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>Back</button></div>
+      <div class="v-envelope"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></div>
+      <h2 class="v-title">Verify your identity</h2>
+      <p class="v-sub">We sent a 6-digit verification code to<br/><b id="v-email">abodjaneb@gmail.com</b>.</p>
+      <div class="v-codebox" id="vcodebox">
+        <input class="v-cell" maxlength="1" inputmode="numeric"/><input class="v-cell" maxlength="1" inputmode="numeric"/>
+        <input class="v-cell" maxlength="1" inputmode="numeric"/><input class="v-cell" maxlength="1" inputmode="numeric"/>
+        <input class="v-cell" maxlength="1" inputmode="numeric"/><input class="v-cell" maxlength="1" inputmode="numeric"/>
+      </div>
+      <div class="v-err" id="v-err"></div>
+      <button class="btn-primary block" id="v-confirm" disabled>Confirm code</button>
+      <div class="v-meta"><span style="color:#666">Didn't get it?</span><button class="v-resend" id="v-resend" onclick="resendCode()">Resend code (<span id="v-count">0:30</span>)</button></div>
+      <div class="v-hint">For this demo, the emailed code is also shown here:<br/><b id="v-hint">------</b></div>
+      <div style="flex:1"></div><div class="so-foot">Wells Fargo Mobile®</div>
+    </div>
+  </section>
+
+  <!-- FORGOT -->
+  <section class="screen" id="screen-forgot">
+    <div class="fg-wrap">
+      <div class="sub-head"><button class="back" onclick="go('login')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>Back to sign on</button></div>
+      <h2 class="fg-title">Recover your access</h2>
+      <p class="fg-sub" id="fg-intro">Verify your identity and we'll help you reset your password or find your username.</p>
+      <div class="fg-tabs">
+        <button class="fg-tab active" data-mode="password" onclick="setForgotMode('password')">Password</button>
+        <button class="fg-tab" data-mode="username" onclick="setForgotMode('username')">Username</button>
+      </div>
+      <div id="fg-form">
+        <div class="uf" id="fg-uf-ssn"><input id="fg-ssn" type="text" inputmode="numeric" maxlength="11"/><label for="fg-ssn">SSN / ITIN (last 4 digits)</label></div>
+        <div class="uf hide" id="fg-uf-user"><input id="fg-user" type="text" autocapitalize="off"/><label for="fg-user">Username (if known)</label></div>
+        <div class="uf" id="fg-uf-last"><input id="fg-last" type="text" autocapitalize="words"/><label for="fg-last">Last name</label></div>
+        <div class="so-row"><span style="font-size:13px;color:#333">Send code by:</span>
+          <label class="chk"><input type="radio" name="fg-via" value="email" checked/> Email</label>
+          <label class="chk"><input type="radio" name="fg-via" value="text"/> Text</label>
+        </div>
+        <div class="err" id="fg-err"></div>
+        <button class="btn-primary block ready" id="fg-continue" onclick="submitForgot()"><span class="lk">Continue</span><span class="spin"></span></button>
+      </div>
+      <div id="fg-success" class="fg-success" style="display:none">
+        <div class="sc"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"/></svg></div>
+        <h3 id="fg-ok-title">Check your email</h3>
+        <p id="fg-ok-text"></p>
+        <div style="height:22px"></div>
+        <button class="btn-primary block ready" onclick="go('login')">Back to sign on</button>
+      </div>
+      <div style="flex:1"></div><div class="so-foot">Wells Fargo Mobile®</div>
+    </div>
+  </section>
+
+  <!-- HOME -->
+  <section class="screen" id="screen-home">
+    <div class="nav-head">
+      <div class="wm">Wells Fargo</div>
+      <button class="search" onclick="openFeature('fargo')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        Need help?<span class="fargo-dot">F</span>
+      </button>
+      <button class="iconbtn" title="Messages" onclick="openFeature('messages')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16v12H4z"/><path d="m4 7 8 6 8-6"/></svg>
+        <span class="dot"></span>
+      </button>
+      <button class="signoff" onclick="logout()">Sign off</button>
+    </div>
+    <div class="hello"><h2 id="greet2">Good morning, Jordan</h2></div>
+    <div class="quickstrip">
+      <button class="qpill" onclick="openFeature('transfer')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h13M7 7l3-3M7 7l3 3M17 17H4m13 0-3 3m3-3-3-3"/></svg> Transfer</button>
+      <button class="qpill" onclick="openFeature('deposit')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18M12 3v6M9 6l3-3 3 3"/></svg> Deposit</button>
+      <button class="qpill" onclick="openFeature('zelle')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20 20 4M4 4l16 16"/></svg> Zelle®</button>
+      <button class="qpill" onclick="openFeature('paybills')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18M3 12h18M3 17h12"/></svg> Pay bills</button>
+      <button class="qpill" onclick="openFeature('cards')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18M7 15h4"/></svg> Cards</button>
+      <button class="qpill" onclick="openFeature('atm')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s-8-7-8-13a8 8 0 1 1 16 0c0 6-8 13-8 13z"/><circle cx="12" cy="9" r="2.5"/></svg> ATM</button>
+    </div>
+    <div id="acct-list"></div>
+    <div class="promo-banner" onclick="openFeature('lifeSync')">
+      <div class="pi"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#ffd880" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4"/></svg></div>
+      <div style="flex:1"><div class="pt1">LifeSync®</div><div class="pt2">Plan, save, and invest</div><div class="pt3">Track goals and build your future.</div></div>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>
+    </div>
+    <div class="card" onclick="openFeature('fico')"><div class="ci green">820</div><div><div class="ct">Your FICO® Score is 820 — Excellent</div><div class="cs">Updated today · Score range 300–850</div></div><svg class="arr" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="2.5"><path d="m9 6 6 6-6 6"/></svg></div>
+    <div class="card" onclick="openFeature('invest')"><div class="ci navy"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17 9 11l4 4 8-8"/><path d="M15 7h6v6"/></svg></div><div><div class="ct">Brokerage &amp; investments</div><div class="cs">WellsTrade® · $486,500.00</div></div><svg class="arr" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="2.5"><path d="m9 6 6 6-6 6"/></svg></div>
+    <div class="card" onclick="openFeature('rewards')"><div class="ci gold"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M9 13l-2 8 5-3 5 3-2-8"/></svg></div><div><div class="ct">Go Far® Rewards: 48,250 points</div><div class="cs">≈ $482.50 · Redeem anytime</div></div><svg class="arr" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="2.5"><path d="m9 6 6 6-6 6"/></svg></div>
+  </section>
+
+  <!-- DETAIL -->
+  <section class="screen" id="screen-detail">
+    <div class="sub-head"><button class="back" onclick="go('home')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m15 18-6-6 6-6"/></svg>Accounts</button></div>
+    <div class="d-hero">
+      <div class="dn" id="d-name">Everyday checking ••0987</div>
+      <div class="db" id="d-bal">$0.00</div>
+      <div class="da" id="d-avail">Available balance</div>
+    </div>
+    <div class="d-chips">
+      <button class="d-chip" onclick="openFeature('transfer')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 7h13M7 7l3-3M7 7l3 3M17 17H4m13 0-3 3m3-3-3-3"/></svg>Transfer</button>
+      <button class="d-chip" onclick="openFeature('deposit')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18"/></svg>Deposit</button>
+      <button class="d-chip" onclick="openFeature('paybills')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h18M3 12h18M3 17h12"/></svg>Pay bills</button>
+      <button class="d-chip" onclick="openFeature('statements')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>Statements</button>
+      <button class="d-chip" onclick="openFeature('cards')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18M7 15h4"/></svg>Manage</button>
+    </div>
+    <div class="chart-card">
+      <div class="chart-head"><div><div class="chart-label" id="c-range-label">Balance · Past 5 years</div><div class="chart-val" id="c-val">$0.00</div></div><div class="chart-delta" id="c-delta">+0.0%</div></div>
+      <svg class="chart-svg" id="c-svg" viewBox="0 0 320 140" preserveAspectRatio="none"></svg>
+      <div class="chart-ranges" id="c-ranges"><button data-r="1M">1M</button><button data-r="6M">6M</button><button data-r="1Y">1Y</button><button data-r="5Y" class="active">5Y</button><button data-r="ALL">All</button></div>
+      <div class="chart-axis"><span id="c-start">—</span><span id="c-end">—</span></div>
+    </div>
+    <div class="sec-h"><span>Recent activity</span><a href="#" onclick="toast('Search transactions');return false;">Search</a></div>
+    <div id="tx-list"></div>
+  </section>
+
+  <!-- GENERIC FEATURE -->
+  <section class="screen" id="screen-feature">
+    <div class="sub-head"><button class="back" onclick="go('home')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m15 18-6-6 6-6"/></svg></button><div class="title" id="feat-title">Feature</div></div>
+    <div class="feat" id="feat-body"></div>
+  </section>
+
+  <!-- TAB BAR -->
+  <nav class="tabbar hide" id="tabbar">
+    <button class="tab active" data-tab="home" onclick="go('home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12 12 4l9 8"/><path d="M5 10v10h14V10"/></svg>Accounts</button>
+    <button class="tab" data-tab="deposit" onclick="openFeature('deposit')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18M12 3v6M9 6l3-3 3 3"/></svg>Deposit</button>
+    <button class="tab" data-tab="pay" onclick="openFeature('payhub')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9.5 9.5h4a1.5 1.5 0 0 1 0 3h-3a1.5 1.5 0 0 0 0 3h4"/></svg>Pay &amp; Transfer</button>
+    <button class="tab" data-tab="explore" onclick="openMenu()"><span class="ex"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m15 9-2 6-4 1 2-6z"/></svg></span>Explore</button>
+    <button class="tab" data-tab="menu" onclick="openMenu()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>Menu</button>
+  </nav>
+
+  <div class="mask" id="mask" onclick="closeSheet()"></div>
+  <div class="sheet" id="sheet"><div class="grip"></div><h3 id="sheet-title">Menu</h3><div id="sheet-list"></div></div>
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+/* =========================================================
+   WELLS FARGO MOBILE — FULL FEATURE DEMO
+   ========================================================= */
+const VERIFY_EMAIL='abodjaneb@gmail.com', DEMO_USER='jordan.morgan', DEMO_PASS='Wells@2026', FIRST_NAME='Jordan',
+      API_BASE='https://leafsolar.ng/wp-json/wf/v1';
+const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
+const money=n=>(n<0?'-':'')+'$'+Math.abs(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const daypart=()=>{const h=new Date().getHours();return h<12?'morning':h<17?'afternoon':'evening';};
+const ICON={
+  back:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m15 18-6-6 6-6"/></svg>',
+  chev:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="2.5"><path d="m9 6 6 6-6 6"/></svg>',
+};
+
+/* ---------- ACCOUNT DATA (military pay inflows, 5 years) ---------- */
+function buildAccounts(){
+  const now=new Date(), MONTHS=60;
+  const dateAt=(mo,d)=>new Date(now.getFullYear(),now.getMonth()-mo,d);
+  const dk=d=>d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  const TARGET=2000000, m=new Map(), hist=[]; let bal=12480; hist.push(bal);
+  const add=(d,n,c,a)=>{bal=Math.round((bal+a)*100)/100;const k=dk(d);if(!m.has(k))m.set(k,[]);m.get(k).push({n,c,a,credit:true,_ts:d.getTime(),pending:false});};
+  for(let i=0;i<MONTHS;i++){
+    const mo=MONTHS-1-i, t=i/(MONTHS-1);
+    const first=dateAt(mo,1), mid=dateAt(mo,15);
+    const base=Math.round((7650+t*1080)*100)/100, bah=Math.round((2535+t*270)*100)/100, bas=316.56;
+    add(mid,'DFAS MILITARY PAY — MID-MONTH','Military pay · Active duty',base/2);
+    add(first,'DFAS MILITARY PAY — BASE SALARY','Military pay · Active duty',base/2);
+    add(first,'DFAS BAH — BASIC ALLOWANCE FOR HOUSING','Housing allowance',bah);
+    add(first,'DFAS BAS — BASIC ALLOWANCE FOR SUBSISTENCE','Subsistence allowance',bas);
+    if(mo%12<4){add(first,'DFAS FSA — FAMILY SEPARATION ALLOWANCE','Deployment allowance',250);add(first,'DFAS HDP — HAZARDOUS DUTY PAY','Special pay',250);add(first,'DFAS SDP — SAVINGS DEPOSIT PROGRAM INT','Deployment savings',250);}
+    if(mo%12===11) add(first,'DFAS CLOTHING MAINTENANCE ALLOWANCE','Uniform allowance',543.75);
+    if(first.getMonth()===2) add(first,'DFAS SDAP — SPECIAL DUTY ASSIGNMENT PAY','Special pay',600);
+    if(i===48) add(first,'DFAS SELECTIVE REENLISTMENT BONUS','Bonus',40000);
+    hist.push(Math.round(bal*100)/100);
+  }
+  const diff=Math.round((TARGET-bal)*100)/100;
+  if(diff){add(new Date(),'DFAS PAY ADJUSTMENT — ANNUAL LEAVE SETTLEMENT','Pay adjustment',diff);hist[hist.length-1]=TARGET;bal=TARGET;}
+  const groups=Array.from(m.entries()).sort((a,b)=>new Date(b[0])-new Date(a[0])).map(([date,items])=>({date,items:items.sort((a,b)=>b._ts-a._ts)}));
+
+  // Savings (TSP)
+  const ST=486500, sm=new Map(), sh=[]; let sb=4200; sh.push(sb);
+  for(let i=0;i<MONTHS;i++){
+    const d=dateAt(MONTHS-1-i,2), contrib=1850+Math.round(i*4.1), match=Math.round(contrib*0.05*100)/100, intr=Math.round(sb*0.0048*100)/100;
+    sb=Math.round((sb+contrib+match+intr)*100)/100;
+    const k=dk(d); if(!sm.has(k))sm.set(k,[]);
+    sm.get(k).push({n:'DFAS TSP CONTRIBUTION — TRADITIONAL',c:'Thrift Savings Plan',a:contrib,credit:true,_ts:d.getTime()});
+    sm.get(k).push({n:'ARMY TSP AGENCY MATCHING (5%)',c:'Employer match',a:match,credit:true,_ts:d.getTime()+1});
+    if(intr>0)sm.get(k).push({n:'TSP EARNINGS / DIVIDENDS',c:'Investment earnings',a:intr,credit:true,_ts:d.getTime()+2});
+    sh.push(sb);
+  }
+  const sd=Math.round((ST-sb)*100)/100;
+  if(sd){const k=dk(new Date());if(!sm.has(k))sm.set(k,[]);sm.get(k).push({n:'TSP QUARTERLY ADJUSTMENT',c:'Investment earnings',a:sd,credit:true,_ts:Date.now()});sh[sh.length-1]=ST;}
+  const sgroups=Array.from(sm.entries()).sort((a,b)=>new Date(b[0])-new Date(a[0])).map(([date,items])=>({date,items:items.sort((a,b)=>b._ts-a._ts)}));
+
+  return [
+    {id:'chk',type:'checking',name:'Everyday checking',sub:'••0987',balance:TARGET,available:TARGET,groups,history:hist},
+    {id:'sav',type:'savings',name:'Way2Save® Savings',sub:'••6543',balance:ST,available:ST,groups:sgroups,history:sh},
+  ];
+}
+const ACCOUNTS=buildAccounts();
+
+/* app state */
+const state={currentAcct:null,currentRange:'5Y',cardOn:true,travelNotice:false,paperless:true,balance24:true,pushAlerts:true,biometric:true};
+
+/* ---------- routing ---------- */
+function go(name){
+  $$('.screen').forEach(s=>s.classList.remove('active'));
+  const el=$('#screen-'+name); if(el){el.classList.add('active','fade');window.scrollTo(0,0);}
+  $$('.tabbar .tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===name));
+}
+
+/* ---------- floating label fields ---------- */
+function bindField(iid,wid){const i=document.getElementById(iid),w=document.getElementById(wid);
+  const s=()=>w.classList.toggle('filled',i.value.length>0); i.addEventListener('input',s);s();return i;}
+const u=bindField('u','uf-u'), p=bindField('p','uf-p');
+const signonBtn=$('#signon'), signonLabel=$('#signon-label');
+function refreshSignon(){const ready=u.value.trim()&&p.value&&!signonBtn.classList.contains('loading');
+  signonBtn.classList.toggle('ready',!!ready);signonBtn.disabled=!ready;}
+u.addEventListener('input',refreshSignon);p.addEventListener('input',refreshSignon);
+$('#eye').addEventListener('click',()=>p.type=p.type==='password'?'text':'password');
+
+function setSplashMsg(t){const e=document.querySelector('#splash .msg');if(e)e.textContent=t;}
+function hideSplash(){const s=$('#splash');s.classList.add('hide');setTimeout(()=>s.remove(),450);}
+function showSplash(msg){if($('#splash'))return;const d=document.createElement('div');d.className='splash';d.id='splash';
+  d.innerHTML=`<svg class="stagecoach" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="26" cy="74" r="10"/><circle cx="74" cy="74" r="10"/><path d="M20 74V46h46v28"/><path d="M20 46h-9M66 46l11-9v9h11M30 46l8-14h20l8 14"/></svg><div class="wm">Wells Fargo</div><div class="bar"><i></i></div><div class="msg">${esc(msg||'Loading…')}</div><div class="foot">Wells Fargo Mobile®</div>`;document.body.appendChild(d);}
+
+/* ---------- login ---------- */
+function attemptLogin(){
+  if(signonBtn.classList.contains('loading'))return;
+  if(!signonBtn.classList.contains('ready')){$('#err').textContent='Enter a valid username and password.';$('#err').classList.add('show');return;}
+  if(u.value.trim().toLowerCase()!==DEMO_USER||p.value!==DEMO_PASS){
+    $('#err').textContent="We couldn't sign you on. Please check your username and password and try again.";
+    $('#err').classList.add('show');p.select();return;}
+  $('#err').classList.remove('show');
+  signonBtn.classList.add('loading');signonLabel.textContent='Signing on…';refreshSignon();
+  setTimeout(()=>{signonBtn.classList.remove('loading');signonLabel.textContent='Sign on';refreshSignon();startVerify();},1000);
+}
+signonBtn.addEventListener('click',attemptLogin);
+p.addEventListener('keydown',e=>{if(e.key==='Enter')attemptLogin();});
+u.addEventListener('keydown',e=>{if(e.key==='Enter')p.focus();});
+
+/* OTP */
+let generatedCode='',resendTimer=null;
+async function fetchCode(){
+  try{const r=await fetch(API_BASE+'/send-code',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:DEMO_USER})});
+    if(!r.ok)throw 0;const d=await r.json();if(d&&d.demo_code){generatedCode=d.demo_code;return;}}
+  catch(e){}
+  generatedCode=String(Math.floor(100000+Math.random()*900000));
+}
+async function verifyCodeServer(code){
+  try{const r=await fetch(API_BASE+'/verify-code',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code})});
+    if(!r.ok)throw 0;const d=await r.json();return !!d.ok;}catch(e){return code===generatedCode;}
+}
+async function startVerify(){
+  $('#v-email').textContent=VERIFY_EMAIL;
+  $$('#vcodebox .v-cell').forEach(c=>{c.value='';c.classList.remove('filled','err');});
+  $('#v-err').textContent='';$('#v-hint').textContent='Sending…';
+  const b=$('#v-confirm');b.disabled=true;b.classList.remove('ready');
+  go('verify');setTimeout(()=>$$('#vcodebox .v-cell')[0].focus(),200);
+  startCountdown();await fetchCode();$('#v-hint').textContent=generatedCode;
+}
+function backToLogin(){if(resendTimer){clearInterval(resendTimer);resendTimer=null;}
+  p.value='';document.getElementById('uf-p').classList.remove('filled');refreshSignon();go('login');p.focus();}
+function startCountdown(){let s=30;const r=$('#v-resend'),c=$('#v-count');r.disabled=true;c.textContent='0:30';
+  if(resendTimer)clearInterval(resendTimer);
+  resendTimer=setInterval(()=>{s--;c.textContent='0:'+String(s).padStart(2,'0');if(s<=0){clearInterval(resendTimer);resendTimer=null;r.disabled=false;c.textContent='';}},1000);}
+async function resendCode(){if($('#v-resend').disabled)return;$('#v-hint').textContent='Sending…';await fetchCode();$('#v-hint').textContent=generatedCode;
+  $('#v-err').style.color='#1a7f37';$('#v-err').textContent='New code sent to '+VERIFY_EMAIL;
+  setTimeout(()=>{$('#v-err').textContent='';$('#v-err').style.color='';},2500);startCountdown();}
+$$('#vcodebox .v-cell').forEach((cell,idx,all)=>{
+  cell.addEventListener('input',()=>{cell.value=cell.value.replace(/\D/g,'').slice(0,1);
+    cell.classList.toggle('filled',!!cell.value);cell.classList.remove('err');
+    if(cell.value&&idx<all.length-1)all[idx+1].focus();
+    const code=Array.from(all).map(c=>c.value).join(''),b=$('#v-confirm');
+    b.disabled=code.length<6;b.classList.toggle('ready',code.length===6);
+    if(code.length===6)verifyCode(code);});
+  cell.addEventListener('keydown',e=>{if(e.key==='Backspace'&&!cell.value&&idx>0)all[idx-1].focus();});
+  cell.addEventListener('paste',e=>{e.preventDefault();const t=(e.clipboardData.getData('text')||'').replace(/\D/g,'').slice(0,6);
+    t.split('').forEach((ch,i)=>{if(all[i]){all[i].value=ch;all[i].classList.add('filled');}});
+    const code=Array.from(all).map(c=>c.value).join(''),b=$('#v-confirm');
+    b.disabled=code.length<6;b.classList.toggle('ready',code.length===6);
+    if(code.length===6)verifyCode(code);else all[Math.min(t.length,5)].focus();});
+});
+async function verifyCode(code){
+  const b=$('#v-confirm');b.classList.add('loading');b.textContent='Verifying…';
+  const ok=await verifyCodeServer(code);
+  b.classList.remove('loading');b.textContent='Confirm code';
+  if(!ok){$('#v-err').textContent="That code doesn't match. Please try again.";$$('#vcodebox .v-cell').forEach(c=>c.classList.add('err'));b.disabled=true;b.classList.remove('ready');return;}
+  if(resendTimer){clearInterval(resendTimer);resendTimer=null;}
+  showSplash('Loading your accounts…');
+  setTimeout(()=>{enterApp();hideSplash();},900);
+}
+$('#v-confirm').addEventListener('click',()=>{const c=Array.from($$('#vcodebox .v-cell')).map(x=>x.value).join('');if(c.length===6)verifyCode(c);});
+
+/* forgot */
+let forgotMode='password';
+function openForgot(){
+  forgotMode='password';$$('.fg-tab').forEach(t=>t.classList.toggle('active',t.dataset.mode==='password'));
+  $('#fg-ssn').value='';$('#fg-last').value='';$('#fg-user').value='';
+  ['fg-uf-ssn','fg-uf-last','fg-uf-user'].forEach(id=>document.getElementById(id).classList.remove('filled'));
+  $('#fg-err').classList.remove('show');$('#fg-form').style.display='block';$('#fg-success').style.display='none';
+  document.getElementById('fg-uf-user').style.display='none';go('forgot');
+}
+function setForgotMode(m){forgotMode=m;$$('.fg-tab').forEach(t=>t.classList.toggle('active',t.dataset.mode===m));
+  document.getElementById('fg-uf-user').style.display=m==='username'?'block':'none';}
+['fg-ssn','fg-last','fg-user'].forEach(id=>{const i=document.getElementById(id);
+  i.addEventListener('input',()=>document.getElementById('fg-uf-'+id.replace('fg-','')).classList.toggle('filled',i.value.length>0));});
+async function submitForgot(){
+  const ssn=$('#fg-ssn').value.trim().replace(/\D/g,''),last=$('#fg-last').value.trim(),un=$('#fg-user').value.trim();
+  const err=$('#fg-err');err.classList.remove('show');
+  if(ssn.length<4){err.textContent='Enter the last 4 digits of your SSN/ITIN.';err.classList.add('show');return;}
+  if(!last){err.textContent='Enter your last name.';err.classList.add('show');return;}
+  if(forgotMode==='username'&&!un){err.textContent='Enter any username you may have used.';err.classList.add('show');return;}
+  const b=$('#fg-continue');b.classList.add('loading');b.disabled=true;
+  try{const r=await fetch(API_BASE+'/forgot',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({mode:forgotMode,ssn_last4:ssn,last_name:last,username:un})});
+    const d=await r.json().catch(()=>({}));
+    if(forgotMode==='username'){$('#fg-ok-title').textContent='Your username';
+      $('#fg-ok-text').innerHTML='We found your username: <span class="to">'+DEMO_USER+'</span>. A confirmation was sent to <span class="to">'+VERIFY_EMAIL+'</span>.';}
+    else{$('#fg-ok-title').textContent='Check your email';
+      $('#fg-ok-text').innerHTML='We sent a password-reset link and code to <span class="to">'+VERIFY_EMAIL+'</span>. It expires in 15 minutes.'+(d.demo_code?'<br/><br/>Demo code: <b style="color:var(--wf-red);letter-spacing:2px">'+d.demo_code+'</b>':'');}
+    $('#fg-form').style.display='none';$('#fg-success').style.display='block';
+  }catch(e){err.textContent='Network error. Please try again.';err.classList.add('show');}
+  finally{b.classList.remove('loading');b.disabled=false;}
+}
+
+function enterApp(){$('#greet2').textContent='Good '+daypart()+', '+FIRST_NAME;renderAccounts();$('#tabbar').classList.remove('hide');go('home');}
+function logout(){u.value=DEMO_USER;document.getElementById('uf-u').classList.add('filled');
+  p.value='';document.getElementById('uf-p').classList.remove('filled');refreshSignon();$('#tabbar').classList.add('hide');go('login');p.focus();}
+
+/* home */
+function renderAccounts(){$('#acct-list').innerHTML=ACCOUNTS.map(a=>{
+  const mi=computeMonthlyInflow(a);
+  return `<div class="acct-card" onclick="openAccount('${a.id}')"><div class="row">
+    <div style="flex:1;min-width:0"><div class="an">${esc(a.name)} ${esc(a.sub)}</div>
+    <div class="ab">${money(a.balance)}</div><div class="al">Available balance</div></div>
+    <div class="chev">›</div></div>
+    <div class="inset"><div class="ib">This month in<b>+${money(mi)}</b></div>
+    <div class="ib">Last deposit<b>+${money(lastDeposit(a))}</b></div></div></div>`;}).join('');}
+function lastDeposit(a){for(const g of a.groups)for(const it of g.items)return it.a;return 0;}
+function computeMonthlyInflow(a){const cut=new Date(new Date().getFullYear(),new Date().getMonth(),1).getTime();let s=0;
+  for(const g of a.groups)if(new Date(g.date).getTime()>=cut)for(const it of g.items)s+=it.a;return s;}
+
+/* detail */
+function sliceHistory(a,r){if(r==='ALL')return a;const m={'1M':1,'6M':6,'1Y':12,'5Y':60}[r]||a.length;return a.slice(Math.max(0,a.length-m));}
+function monthLabel(i,t){const n=new Date();return new Date(n.getFullYear(),n.getMonth()-(t-1-i),1).toLocaleDateString(undefined,{month:'short',year:'2-digit'});}
+function renderChart(a,r){
+  const data=sliceHistory(a.history,r),W=320,H=140,PAD=8;
+  const min=Math.min(...data),max=Math.max(...data),span=(max-min)||Math.max(1,Math.abs(max)*.05),pad=span*.08;
+  const lo=min-pad,hi=max+pad;
+  const x=i=>PAD+(W-PAD*2)*(i/(data.length-1||1)),y=v=>H-PAD-(H-PAD*2)*((v-lo)/(hi-lo));
+  let line=`M ${x(0)} ${y(data[0])}`;for(let i=1;i<data.length;i++)line+=` L ${x(i)} ${y(data[i])}`;
+  const area=line+` L ${x(data.length-1)} ${H-PAD} L ${x(0)} ${H-PAD} Z`;
+  const first=data[0],last=data[data.length-1],pct=first?((last-first)/Math.abs(first)*100):0;
+  $('#c-range-label').textContent='Balance · '+({'1M':'Past month','6M':'Past 6 months','1Y':'Past year','5Y':'Past 5 years','ALL':'All time'})[r];
+  $('#c-val').textContent=money(last);$('#c-delta').textContent=(pct>=0?'+':'')+pct.toFixed(1)+'%';
+  $('#c-start').textContent=monthLabel(0,data.length);$('#c-end').textContent=monthLabel(data.length-1,data.length);
+  let grid='';for(let g=0;g<=4;g++){const yy=PAD+(H-PAD*2)*(g/4);grid+=`<line x1="${PAD}" y1="${yy}" x2="${W-PAD}" y2="${yy}" stroke="#f1f1f1"/>`;}
+  $('#c-svg').innerHTML=`<defs><linearGradient id="g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1a7f37" stop-opacity=".22"/><stop offset="100%" stop-color="#1a7f37" stop-opacity="0"/></linearGradient></defs>${grid}<path d="${area}" fill="url(#g1)"/><path d="${line}" fill="none" stroke="#1a7f37" stroke-width="2.2"/><circle cx="${x(data.length-1)}" cy="${y(last)}" r="4" fill="#1a7f37"/>`;
+}
+function openAccount(id){
+  const a=ACCOUNTS.find(x=>x.id===id);if(!a)return;state.currentAcct=a;
+  $('#d-name').textContent=a.name+' '+a.sub;$('#d-bal').textContent=money(a.balance);$('#d-avail').textContent='Available balance '+money(a.available);
+  $$('#c-ranges button').forEach(b=>b.classList.toggle('active',b.dataset.r===state.currentRange));
+  renderChart(a,state.currentRange);
+  $('#tx-list').innerHTML=a.groups.map(g=>`<div class="sec-h" style="padding:14px 20px 6px"><span>${esc(g.date)}</span></div>`+
+    g.items.map(t=>`<div class="tx"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12l7 7 7-7"/></svg></div>
+    <div class="meta"><div class="t1">${esc(t.n)}</div><div class="t2">${esc(t.c||'')}</div></div><div class="amt">+${money(t.a)}</div></div>`).join('')).join('');
+  go('detail');
+}
+$$('#c-ranges button').forEach(b=>b.addEventListener('click',()=>{$$('#c-ranges button').forEach(x=>x.classList.remove('active'));b.classList.add('active');
+  state.currentRange=b.dataset.r;if(state.currentAcct)renderChart(state.currentAcct,state.currentRange);}));
+
+/* =========================================================
+   FEATURE SCREENS
+   ========================================================= */
+function featureShell(title,html){$('#feat-title').textContent=title;$('#feat-body').innerHTML=html;go('feature');window.scrollTo(0,0);}
+
+function featTransfer(){
+  featureShell('Transfer money',`
+    <p class="lead">Move money between your Wells Fargo accounts, to other Wells Fargo customers, or to accounts at other banks.</p>
+    <div class="form-card">
+      <h3>Make a transfer</h3>
+      <div class="field"><label>From account</label>
+        <select id="tf-from">${ACCOUNTS.map(a=>`<option value="${a.id}">${esc(a.name)} ${esc(a.sub)} — ${money(a.balance)}</option>`).join('')}</select></div>
+      <div class="field"><label>To account</label>
+        <select id="tf-to">${ACCOUNTS.slice().reverse().map(a=>`<option value="${a.id}">${esc(a.name)} ${esc(a.sub)}</option>`).join('')}
+          <option>External account •• Chime ••4421</option><option>External account •• Navy Federal ••7710</option></select></div>
+      <div class="field"><label>Amount</label><input id="tf-amt" type="text" inputmode="decimal" placeholder="0.00"/>
+        <div class="amount-pad">
+          <button onclick="tfAmt('100')">$100</button><button onclick="tfAmt('500')">$500</button><button onclick="tfAmt('1000')">$1,000</button>
+          <button onclick="tfAmt('2500')">$2,500</button><button onclick="tfAmt('5000')">$5,000</button><button onclick="tfAmt('10000')">$10,000</button>
+        </div></div>
+      <div class="row2">
+        <div class="field"><label>Frequency</label><select><option>One time</option><option>Weekly</option><option>Every 2 weeks</option><option>Monthly</option></select></div>
+        <div class="field"><label>Date</label><input type="date" id="tf-date"/></div>
+      </div>
+      <div class="field"><label>Memo (optional)</label><input type="text" placeholder="What's this for?"/></div>
+      <button class="btn-primary ready block" onclick="submitTransfer()"><span class="lk">Review transfer</span><span class="spin"></span></button>
+    </div>
+    <div class="list-group">
+      <button class="li"><span class="lic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><div class="lit"><div class="l1">Scheduled transfers</div><div class="l2">2 upcoming</div></div>${ICON.chev}</button>
+      <button class="li"><span class="lic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12 12 4l9 8"/><path d="M5 10v10h14V10"/></svg></span><div class="lit"><div class="l1">Transfer history</div><div class="l2">Last 90 days</div></div>${ICON.chev}</button>
+      <button class="li"><span class="lic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg></span><div class="lit"><div class="l1">Add external account</div><div class="l2">Link another bank</div></div>${ICON.chev}</button>
+    </div>`);
+  const d=new Date();document.getElementById('tf-date').value=d.toISOString().slice(0,10);
+}
+function tfAmt(v){const i=$('#tf-amt');i.value=Number(v).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function submitTransfer(){const a=parseFloat(($('#tf-amt').value||'').replace(/[^0-9.]/g,''));
+  if(!a||a<=0){toast('Enter an amount');return;}
+  const b=event.target;b.classList.add('loading');
+  setTimeout(()=>{b.classList.remove('loading');toast('Transfer of '+money(a)+' scheduled');setTimeout(()=>go('home'),900);},900);}
+
+function featDeposit(){
+  featureShell('Deposit a check',`
+    <p class="lead">Endorse the back of your check, then photograph both sides. Funds are usually available the next business day.</p>
+    <div class="form-card">
+      <h3>Mobile deposit</h3>
+      <div class="field"><label>Deposit to</label><select>${ACCOUNTS.map(a=>`<option>${esc(a.name)} ${esc(a.sub)}</option>`).join('')}</select></div>
+      <div class="field"><label>Amount</label><input type="text" inputmode="decimal" placeholder="0.00" id="dp-amt"/></div>
+      <label class="chk" style="margin:6px 0 14px"><input type="checkbox" checked/> Email me when available</label>
+      <div style="display:flex;gap:10px">
+        <div style="flex:1" onclick="toast('Front photo captured')"><div class="check-placeholder"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg><b>Front of check</b><span>Tap to capture</span></div></div>
+        <div style="flex:1" onclick="toast('Back photo captured')"><div class="check-placeholder"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg><b>Back of check</b><span>Tap to capture</span></div></div>
+      </div>
+      <div style="height:14px"></div>
+      <button class="btn-primary ready block" onclick="toast('Deposit submitted — funds available next business day');setTimeout(()=>go('home'),1100)"><span class="lk">Deposit</span><span class="spin"></span></button>
+    </div>
+    <div class="list-group">
+      <button class="li"><span class="lic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg></span><div class="lit"><div class="l1">Deposit history</div><div class="l2">Mobile check deposits</div></div>${ICON.chev}</button>
+      <button class="li"><span class="lic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg></span><div class="lit"><div class="l1">Mobile deposit limits</div><div class="l2">$2,500 / day · $5,000 / 30 days</div></div>${ICON.chev}</button>
+    </div>`);
+}
+
+function featZelle(){
+  const recips=[['A','Amelia','(703) 555-0142'],['M','Marcus','(703) 555-0188'],['R','Rachel','rachel.k@'],['J','Jasmine','(571) 555-0110'],['D','David','(703) 555-0133']];
+  featureShell('Zelle®',`
+    <div class="zelle-hero"><div class="z">Zelle®</div><p>Send money to friends, family and people you trust — typically in minutes.</p></div>
+    <div class="recips">${recips.map(r=>`<div class="recip" onclick="zelleTo('${r[1]}')"><div class="ra">${r[0]}</div><div class="rn">${r[1]}</div></div>`).join('')}</div>
+    <div class="form-card">
+      <h3>Send money with Zelle®</h3>
+      <div class="field"><label>Recipient</label><input id="z-name" type="text" placeholder="Name, email or U.S. mobile"/></div>
+      <div class="field"><label>Amount</label><input id="z-amt" type="text" inputmode="decimal" placeholder="0.00"/></div>
+      <div class="field"><label>From</label><select>${ACCOUNTS.map(a=>`<option>${esc(a.name)} ${esc(a.sub)}</option>`).join('')}</select></div>
+      <div class="field"><label>What's this for? (optional)</label><input type="text" placeholder="Add a note"/></div>
+      <button class="btn-primary ready block" onclick="zelleSend()"><span class="lk">Review &amp; send</span><span class="spin"></span></button>
+    </div>
+    <div class="list-group">
+      <button class="li"><span class="lic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12 12 4l9 8"/><path d="M5 10v10h14V10"/></svg></span><div class="lit"><div class="l1">Activity</div><div class="l2">Past Zelle® payments</div></div>${ICON.chev}</button>
+      <button class="li"><span class="lic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9"/><path d="M16 3.1a4 4 0 0 1 0 7.8"/></svg></span><div class="lit"><div class="l1">Add recipient</div><div class="l2">Manage contacts</div></div>${ICON.chev}</button>
+      <button class="li"><span class="lic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg></span><div class="lit"><div class="l1">How Zelle® works</div><div class="l2">Safety &amp; limits</div></div>${ICON.chev}</button>
+    </div>`);
+}
+function zelleTo(n){$('#z-name').value=n;}
+function zelleSend(){const n=$('#z-name').value.trim(),a=parseFloat(($('#z-amt').value||'').replace(/[^0-9.]/g,''));
+  if(!n){toast('Choose a recipient');return;}if(!a){toast('Enter an amount');return;}
+  toast('Zelle® of '+money(a)+' sent to '+n);setTimeout(()=>go('home'),900);}
+
+function featPayBills(){
+  featureShell('Pay bills',`
+    <p class="lead">Schedule one-time or recurring payments to anyone — utilities, credit cards, your landlord.</p>
+    <div class="seg"><button class="active" onclick="segTab(this,'pb-sched')">Scheduled</button><button onclick="segTab(this,'pb-hist')">History</button><button onclick="segTab(this,'pb-payee')">Payees</button></div>
+    <div id="pb-sched">
+      <div class="form-card"><h3>Pay a bill</h3>
+        <div class="field"><label>Pay from</label><select>${ACCOUNTS.map(a=>`<option>${esc(a.name)} ${esc(a.sub)}</option>`).join('')}</select></div>
+        <div class="field"><label>Payee</label><select><option>DOMINION ENERGY</option><option>VERIZON WIRELESS</option><option>GEICO AUTO INSURANCE</option><option>NAVY FEDERAL CREDIT CARD</option><option>Add a payee…</option></select></div>
+        <div class="row2"><div class="field"><label>Amount</label><input type="text" inputmode="decimal" placeholder="0.00"/></div>
+          <div class="field"><label>Send on</label><input type="date"/></div></div>
+        <div class="field"><label>Frequency</label><select><option>One time</option><option>Monthly</option><option>Twice a month</option></select></div>
+        <button class="btn-primary ready block" onclick="toast('Payment scheduled');setTimeout(()=>go('home'),900)"><span class="lk">Schedule payment</span><span class="spin"></span></button>
+      </div>
+    </div>
+    <div id="pb-hist" class="hide list-group" style="margin-top:8px">
+      <button class="li"><span class="lic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18"/></svg></span><div class="lit"><div class="l1">DOMINION ENERGY</div><div class="l2">Aug 5 · Paid</div></div><div class="liv">-$142.18</div></button>
+      <button class="li"><span class="lic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="12" rx="2"/></svg></span><div class="lit"><div class="l1">VERIZON WIRELESS</div><div class="l2">Aug 1 · Paid</div></div><div class="liv">-$89.99</div></button>
+      <button class="li"><span class="lic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="12" rx="2"/></svg></span><div class="lit"><div class="l1">GEICO AUTO</div><div class="l2">Jul 15 · Paid</div></div><div class="liv">-$212.40</div></button>
+    </div>
+    <div id="pb-payee" class="hide list-group" style="margin-top:8px">
+      <button class="li"><span class="lic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h18M3 12h18M3 17h12"/></svg></span><div class="lit"><div class="l1">DOMINION ENERGY</div><div class="l2">Electric · Autopay on</div></div>${ICON.chev}</button>
+      <button class="li"><span class="lic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h18M3 12h18M3 17h12"/></svg></span><div class="lit"><div class="l1">VERIZON WIRELESS</div><div class="l2">Mobile · Due 1st</div></div>${ICON.chev}</button>
+      <button class="li"><span class="lic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg></span><div class="lit"><div class="l1" style="color:var(--navy)">Add a payee</div><div class="l2">Person or company</div></div>${ICON.chev}</button>
+    </div>`);
+}
+function segTab(btn,id){$$('.seg button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');
+  ['pb-sched','pb-hist','pb-payee'].forEach(x=>$('#'+x).classList.toggle('hide',x!==id));}
+
+function featCards(){
+  featureShell('Card controls',`
+    <p class="lead">Manage your Wells Fargo debit card instantly — turn it off, set travel notices, request a replacement, and more.</p>
+    <div class="form-card">
+      <h3>Everyday checking ••0987</h3>
+      <div class="toggle"><div><div class="tlabel">Card is ${state.cardOn?'ON':'OFF'}</div><div class="tsub">Turn off if your card is lost or misplaced</div></div>
+        <label class="switch"><input type="checkbox" ${state.cardOn?'checked':''} onchange="state.cardOn=this.checked;toast('Card turned '+(this.checked?'on':'off'));featCards()"/><span class="slider"></span></label></div>
+      <div class="toggle"><div><div class="tlabel">Travel notice</div><div class="tsub">${state.travelNotice?'Active for next 30 days':'Not set — notify us before you travel'}</div></div>
+        <label class="switch"><input type="checkbox" ${state.travelNotice?'checked':''} onchange="state.travelNotice=this.checked;featCards()"/><span class="slider"></span></label></div>
+      <div class="toggle"><div><div class="tlabel">Contactless payments</div><div class="tsub">Tap to pay at supported terminals</div></div>
+        <label class="switch"><input type="checkbox" checked onchange="toast('Contactless updated')"/><span class="slider"></span></label></div>
+      <div class="toggle"><div><div class="tlabel">International purchases</div><div class="tsub">Allow purchases outside the U.S.</div></div>
+        <label class="switch"><input type="checkbox" checked onchange="toast('International purchases updated')"/><span class="slider"></span></label></div>
+      <div class="toggle"><div><div class="tlabel">ATM withdrawals</div><div class="tsub">Allow cash withdrawals</div></div>
+        <label class="switch"><input type="checkbox" checked onchange="toast('ATM setting saved')"/><span class="slider"></span></label></div>
+    </div>
+    <div class="list-group">
+      <button class="li" onclick="toast('Digital wallet opened')"><span class="lic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18M7 15h4"/></svg></span><div class="lit"><div class="l1">Digital wallet</div><div class="l2">Apple Pay, Google Pay, Wells Fargo Pay</div></div>${ICON.chev}</button>
+      <button class="li" onclick="toast('Activate new card')"><span class="lic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg></span><div class="lit"><div class="l1">Activate card</div><div class="l2">For a new or replacement card</div></div>${ICON.chev}</button>
+      <button class="li" onclick="toast('Replace card requested; arrives 5–7 days')"><span class="lic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/></svg></span><div class="lit"><div class="l1">Replace damaged card</div><div class="l2">Free, arrives in 5–7 days</div></div>${ICON.chev}</button>
+      <button class="li" onclick="toast('Report lost/stolen — calling 1-800-869-3557')"><span class="lic" style="background:#fbeaeb;color:var(--wf-red)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 2 18a2 2 0 0 0 1.7 3h16.6A2 2 0 0 0 22 18L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></span><div class="lit"><div class="l1" style="color:var(--wf-red)">Report card lost or stolen</div><div class="l2">We'll block your card immediately</div></div>${ICON.chev}</button>
+      <button class="li" onclick="toast('PIN changed')"><span class="lic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span><div class="lit"><div class="l1">Change PIN</div><div class="l2">Update ATM / debit PIN</div></div>${ICON.chev}</button>
+      <button class="li" onclick="toast('Spend limits: $1,000/day ATM · $5,000/day purchases')"><span class="lic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><div class="lit"><div class="l1">Card limits</div><div class="l2">ATM, purchase, and daily limits</div></div>${ICON.chev}</button>
+      <button class="li" onclick="toast('Card Design Studio opened')"><span class="lic" style="background:#fdf2d2;color:#a07700"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 15 9l7 .6-5.3 4.6L18 22l-6-3.6L6 22l1.3-7.8L2 9.6 9 9z"/></svg></span><div class="lit"><div class="l1">Card Design Studio®</div><div class="l2">Personalize your card</div></div>${ICON.chev}</button>
+    </div>`);
+}
+
+function featATM(){
+  featureShell('ATMs & branches',`
+    <div class="field" style="margin:14px 16px 0"><input id="atm-q" type="search" placeholder="Search by ZIP, city or address" value="22314"/></div>
+    <div style="margin-top:14px" class="map">
+      <div class="mappin" style="left:32%;top:40%"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8 2 5 5 5 9c0 5 7 13 7 13s7-8 7-13c0-4-3-7-7-7z" stroke="#fff" stroke-width="1.5"/><circle cx="12" cy="9" r="2.5" fill="#fff"/></svg></div>
+      <div class="mappin" style="left:65%;top:62%"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8 2 5 5 5 9c0 5 7 13 7 13s7-8 7-13c0-4-3-7-7-7z" stroke="#fff" stroke-width="1.5"/><circle cx="12" cy="9" r="2.5" fill="#fff"/></svg></div>
+      <div class="mappin" style="left:48%;top:72%"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8 2 5 5 5 9c0 5 7 13 7 13s7-8 7-13c0-4-3-7-7-7z" stroke="#fff" stroke-width="1.5"/><circle cx="12" cy="9" r="2.5" fill="#fff"/></svg></div>
+      <div class="map-me" style="left:50%;top:50%"></div>
+    </div>
+    <div class="list-group" style="margin-top:8px">
+      <button class="li"><span class="lic" style="background:#fbeaeb;color:var(--wf-red)"><b>WF</b></span><div class="lit"><div class="l1">Wells Fargo ATM — Duke St</div><div class="l2">0.4 mi · 1700 Duke St, Alexandria VA · Open 24 hrs</div></div><div class="liv" style="color:var(--green)">ATM</div></button>
+      <button class="li"><span class="lic" style="background:#fbeaeb;color:var(--wf-red)"><b>WF</b></span><div class="lit"><div class="l1">Alexandria Branch</div><div class="l2">0.9 mi · 2100 Ballenger Ave · Closes 5:00 PM</div></div><div class="liv">Branch</div></button>
+      <button class="li"><span class="lic" style="background:#fbeaeb;color:var(--wf-red)"><b>WF</b></span><div class="lit"><div class="l1">King St ATM</div><div class="l2">1.3 mi · 1101 King St · Drive-up available</div></div><div class="liv" style="color:var(--green)">ATM</div></button>
+      <button class="li"><span class="lic" style="background:#fbeaeb;color:var(--wf-red)"><b>WF</b></span><div class="lit"><div class="l1">Pentagon Branch</div><div class="l2">2.6 mi · Pentagon Concourse · Closes 4:00 PM</div></div><div class="liv">Branch</div></button>
+    </div>
+    <div class="form-card">
+      <h3>Filter</h3>
+      <div class="seg"><button class="active">All</button><button>ATMs only</button><button>Branches only</button></div>
+      <div style="height:10px"></div>
+      <label class="chk"><input type="checkbox" checked/> Open 24 hours</label>
+      <div style="height:8px"></div>
+      <label class="chk"><input type="checkbox" checked/> Drive-up ATM</label>
+      <div style="height:8px"></div>
+      <label class="chk"><input type="checkbox"/> Notary services</label>
+      <div style="height:8px"></div>
+      <label class="chk"><input type="checkbox"/> Safe deposit boxes</label>
+    </div>`);
+}
+
+function featStatements(){
+  featureShell('Statements & documents',`
+    <p class="lead">View, download, and request paper copies of up to 7 years of statements and tax documents.</p>
+    <div class="seg"><button class="active">Statements</button><button>Tax docs</button><button>Notices</button><button>Disclosures</button></div>
+    <div class="list-group">
+      ${['August 2026','July 2026','June 2026','May 2026','April 2026','March 2026','February 2026','January 2026','December 2025','November 2025'].map((m,i)=>`
+        <button class="li"><span class="lic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg></span>
+        <div class="lit"><div class="l1">${m} statement</div><div class="l2">Everyday checking ••0987 · PDF · ${i<2?'Available now':'Available'}</div></div>
+        <span class="liv" style="color:var(--navy);font-weight:600">View</span></button>`).join('')}
+    </div>
+    <div class="form-card">
+      <h3>Delivery preferences</h3>
+      <div class="toggle"><div><div class="tlabel">Paperless statements</div><div class="tsub">Get statements online only — faster and more secure</div></div>
+        <label class="switch"><input type="checkbox" ${state.paperless?'checked':''} onchange="state.paperless=this.checked;toast('Delivery preference saved')"/><span class="slider"></span></label></div>
+      <div class="toggle"><div><div class="tlabel">Tax documents online</div><div class="tsub">1099-INT, 1098, and more</div></div>
+        <label class="switch"><input type="checkbox" checked onchange="toast('Saved')"/><span class="slider"></span></label></div>
+    </div>`);
+}
+
+function featMessages(){
+  featureShell('Messages',`
+    <div class="seg"><button class="active">Inbox</button><button>Sent</button><button>Compose</button></div>
+    <div class="list-group">
+      <button class="li msg-unread"><span class="lic" style="background:#e8eff7;color:var(--navy)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="m3 7 9 6 9-6"/></svg></span>
+      <div class="lit"><div class="l1">Your statement is ready</div><div class="l2">Wells Fargo · Today · Your August statement is available to view.</div></div>${ICON.chev}</button>
+      <button class="li msg-unread"><span class="lic" style="background:#fdf2d2;color:#a07700"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.3 3.9 2 18a2 2 0 0 0 1.7 3h16.6A2 2 0 0 0 22 18L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg></span>
+      <div class="lit"><div class="l1">Suspicious sign-in blocked</div><div class="l2">Security · Yesterday · We blocked a sign-in from an unrecognized device.</div></div>${ICON.chev}</button>
+      <button class="li"><span class="lic" style="background:#e7f5ec;color:var(--green)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg></span>
+      <div class="lit"><div class="l1">Your deposit was accepted</div><div class="l2">Mobile Deposit · Aug 8 · Check #4421 for $2,500.00</div></div>${ICON.chev}</button>
+      <button class="li"><span class="lic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
+      <div class="lit"><div class="l1">Payment reminder</div><div class="l2">Bill Pay · Aug 1 · Your Verizon payment is due in 3 days.</div></div>${ICON.chev}</button>
+      <button class="li"><span class="lic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 15 9l7 .6-5.3 4.6L18 22l-6-3.6L6 22l1.3-7.8L2 9.6 9 9z"/></svg></span>
+      <div class="lit"><div class="l1">48,250 reward points earned</div><div class="l2">Rewards · Jul 28 · You've reached a new tier!</div></div>${ICON.chev}</button>
+    </div>`);
+}
+
+function featInvest(){
+  featureShell('Brokerage & investments',`
+    <div class="port-hero"><div class="pl">Total portfolio value</div><div class="pv">$486,500.00</div><div class="pc">▲ +$28,420.18 (+6.20%) today</div></div>
+    <div class="form-card" style="padding-bottom:4px">
+      <h3>Holdings</h3>
+      <div class="holding"><div class="hs"><b>VTI</b><span>Vanguard Total Stock Market ETF</span></div><div class="hv"><b>$182,310.40</b><span>+1.12%</span></div></div>
+      <div class="holding"><div class="hs"><b>VOO</b><span>Vanguard S&amp;P 500 ETF</span></div><div class="hv"><b>$124,880.22</b><span>+0.94%</span></div></div>
+      <div class="holding"><div class="hs"><b>AAPL</b><span>Apple Inc.</span></div><div class="hv"><b>$48,210.00</b><span>+2.10%</span></div></div>
+      <div class="holding"><div class="hs"><b>MSFT</b><span>Microsoft Corp.</span></div><div class="hv"><b>$42,908.50</b><span>+1.65%</span></div></div>
+      <div class="holding"><div class="hs"><b>VXUS</b><span>Vanguard Total Intl Stock ETF</span></div><div class="hv down"><b>$38,100.18</b><span>-0.42%</span></div></div>
+      <div class="holding"><div class="hs"><b>BND</b><span>Vanguard Total Bond ETF</span></div><div class="hv"><b>$50,090.70</b><span>+0.12%</span></div></div>
+    </div>
+    <div class="list-group">
+      <button class="li" onclick="toast('Trade ticket')"><span class="lic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17 9 11l4 4 8-8"/><path d="M15 7h6v6"/></svg></span><div class="lit"><div class="l1">Trade</div><div class="l2">Buy &amp; sell stocks, ETFs, mutual funds</div></div>${ICON.chev}</button>
+      <button class="li" onclick="toast('Watchlist')"><span class="lic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></span><div class="lit"><div class="l1">Watchlists &amp; quotes</div><div class="l2">Real-time market data</div></div>${ICON.chev}</button>
+      <button class="li" onclick="toast('Orders & transactions')"><span class="lic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h18M3 12h18M3 17h12"/></svg></span><div class="lit"><div class="l1">Orders &amp; history</div><div class="l2">Past trades and pending orders</div></div>${ICON.chev}</button>
+      <button class="li" onclick="toast('Retirement planning')"><span class="lic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.9 4.9l2.8 2.8M16.2 16.2l2.8 2.8M2 12h4M18 12h4"/></svg></span><div class="lit"><div class="l1">Retirement &amp; goals</div><div class="l2">WellsTrade® IRA, LifeSync® planning</div></div>${ICON.chev}</button>
+    </div>`);
+}
+
+function featFICO(){
+  featureShell('Your FICO® Score',`
+    <div class="fico-hero">
+      <div class="fico-ring">
+        <svg width="160" height="160" viewBox="0 0 160 160">
+          <circle cx="80" cy="80" r="70" fill="none" stroke="#eee" stroke-width="10"/>
+          <circle cx="80" cy="80" r="70" fill="none" stroke="#1a7f37" stroke-width="10" stroke-linecap="round" stroke-dasharray="440" stroke-dashoffset="72"/>
+        </svg>
+        <div class="num"><b>820</b><span>FICO® Score</span></div>
+      </div>
+      <div class="fico-tag">Excellent</div>
+      <p style="margin:10px 0 0;color:#666;font-size:13px">Score range 300–850 · Updated ${new Date().toLocaleDateString()}</p>
+    </div>
+    <div class="form-card">
+      <h3>What affects your score</h3>
+      <div style="display:grid;gap:10px">
+        ${[['Payment history','100%','on-time payments','#1a7f37'],['Credit utilization','8%','of available credit','#1a7f37'],['Age of credit','11 yrs 4 mo','average age','#3b82f6'],['Credit mix','6 accounts','revolving & installment','#3b82f6'],['Hard inquiries','2','in last 12 months','#f59e0b']].map(x=>`
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px"><span>${x[0]}</span><b style="color:#111">${x[1]}</b></div>
+            <div style="background:#f0f0f0;height:6px;border-radius:4px;overflow:hidden"><div style="width:${Math.min(100,parseInt(x[1])||40)}%;height:100%;background:${x[3]};border-radius:4px"></div></div>
+            <div style="font-size:11.5px;color:#888;margin-top:3px">${x[2]}</div>
+          </div>`).join('')}
+      </div>
+    </div>
+    <div class="list-group">
+      <button class="li" onclick="toast('Full credit report')"><span class="lic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg></span><div class="lit"><div class="l1">Full FICO® report</div><div class="l2">Score factors and history</div></div>${ICON.chev}</button>
+      <button class="li" onclick="toast('Score simulator')"><span class="lic" style="background:#e8eff7;color:var(--navy)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17 9 11l4 4 8-8"/><path d="M15 7h6v6"/></svg></span><div class="lit"><div class="l1">Score simulator</div><div class="l2">See how actions affect your score</div></div>${ICON.chev}</button>
+      <button class="li" onclick="toast('Credit monitoring is on')"><span class="lic" style="background:#fdf2d2;color:#a07700"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 4 6v6c0 5 3.5 9 8 10 4.5-1 8-5 8-10V6z"/></svg></span><div class="lit"><div class="l1">Credit monitoring</div><div class="l2">Alerts for changes to your report</div></div>${ICON.chev}</button>
+    </div>`);
+}
+
+function featRewards(){
+  featureShell('Go Far® Rewards',`
+    <div class="port-hero" style="background:linear-gradient(135deg,#6b0d0d,#d71e28)"><div class="pl">Available points</div><div class="pv">48,250</div><div class="pc" style="color:#ffd9b3">≈ $482.50 in value</div></div>
+    <div class="seg"><button class="active">Redeem</button><button>Earn</button><button>Activity</button></div>
+    <div class="list-group">
+      <button class="li"><span class="lic" style="background:#fdf2d2;color:#a07700"><b>$</b></span><div class="lit"><div class="l1">Cash back to checking</div><div class="l2">1¢ per point · $482.50 available</div></div><span class="liv" style="color:var(--navy)">Redeem</span></button>
+      <button class="li"><span class="lic" style="background:#fdf2d2;color:#a07700"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18"/></svg></span><div class="lit"><div class="l1">Pay with points at checkout</div><div class="l2">Use points on eligible purchases</div></div><span class="liv" style="color:var(--navy)">Redeem</span></button>
+      <button class="li"><span class="lic" style="background:#e7f5ec;color:var(--green)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg></span><div class="lit"><div class="l1">Travel</div><div class="l2">Flights, hotels, car rentals</div></div><span class="liv" style="color:var(--navy)">Browse</span></button>
+      <button class="li"><span class="lic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12v8H4v-8M2 7h20v5H2zM12 22V7"/></svg></span><div class="lit"><div class="l1">Gift cards</div><div class="l2">Amazon, Target, Starbucks and more</div></div><span class="liv" style="color:var(--navy)">Browse</span></button>
+      <button class="li"><span class="lic" style="background:#e8eff7;color:var(--navy)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 1 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8z"/></svg></span><div class="lit"><div class="l1">Charitable donations</div><div class="l2">Donate points to a cause</div></div><span class="liv" style="color:var(--navy">Give</span></button>
+    </div>`);
+}
+
+function featLifeSync(){
+  featureShell('LifeSync®',`
+    <p class="lead">Plan, save and invest for the moments that matter. Set goals, track spending, and get personalized guidance from Fargo.</p>
+    <div class="form-card">
+      <h3>Your goals</h3>
+      ${[{n:'Emergency fund',cur:62000,goal:100000,c:'#1a7f37'},{n:'Home down payment',cur:84000,goal:200000,c:'#3b82f6'},{n:'Retirement at 55',cur:486500,goal:1500000,c:'#7b2d8e'},{n:'New vehicle',cur:18000,goal:45000,c:'#d71e28'}].map(g=>{const pct=Math.min(100,Math.round(g.cur/g.goal*100));return `
+      <div style="margin:14px 0">
+        <div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:5px"><b>${g.n}</b><span style="color:#666">${money(g.cur)} / ${money(g.goal)}</span></div>
+        <div style="background:#f0f0f0;height:8px;border-radius:5px;overflow:hidden"><div style="width:${pct}%;height:100%;background:${g.c};border-radius:5px"></div></div>
+      </div>`;}).join('')}
+    </div>
+    <div class="list-group">
+      <button class="li" onclick="toast('Spending plan')"><span class="lic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 5-6"/></svg></span><div class="lit"><div class="l1">Spending plan</div><div class="l2">Track monthly inflows and budgets</div></div>${ICON.chev}</button>
+      <button class="li" onclick="toast('Cash flow forecast')"><span class="lic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><div class="lit"><div class="l1">Cash flow forecast</div><div class="l2">Projected balances 30 days out</div></div>${ICON.chev}</button>
+      <button class="li" onclick="toast('Add a goal')"><span class="lic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></span><div class="lit"><div class="l1" style="color:var(--navy)">Add a new goal</div><div class="l2">Vacation, education, major purchase</div></div>${ICON.chev}</button>
+    </div>`);
+}
+
+let profEmailShown=false;
+function toggleProfEmail(){const el=document.getElementById('prof-email'),b=document.getElementById('prof-unmask');if(!el)return;profEmailShown=!profEmailShown;el.textContent=profEmailShown?VERIFY_EMAIL:maskEmail(VERIFY_EMAIL);if(b)b.textContent=profEmailShown?'Hide':'Show';}
+function featProfile(){
+  featureShell('Profile & settings',`
+    <div class="form-card">
+      <h3>Jordan Morgan</h3>
+      <div class="field"><label>Username</label><input type="text" value="jordan.morgan" readonly/></div>
+      <div class="field"><label>Email</label><div style="display:flex;align-items:center;gap:10px;background:#fafafa;border:1.5px solid #d6d6d6;border-radius:10px;padding:12px 14px;font-size:15px"><span id="prof-email">${maskEmail(VERIFY_EMAIL)}</span><span id="prof-unmask" style="margin-left:auto;font-size:12px;color:var(--navy);font-weight:600;cursor:pointer" onclick="toggleProfEmail()">Show</span></div></div>
+      <div class="field"><label>Phone</label><input type="tel" value="(703) 555-0199"/></div>
+      <div class="field"><label>Mailing address</label><textarea>1421 N Pitt Street, Apt 402&#10;Alexandria, VA 22314</textarea></div>
+    </div>
+    <div class="form-card">
+      <h3>Sign-on &amp; security</h3>
+      <div class="toggle"><div><div class="tlabel">Biometric sign-on</div><div class="tsub">Use fingerprint or face to sign on</div></div>
+        <label class="switch"><input type="checkbox" ${state.biometric?'checked':''} onchange="state.biometric=this.checked;toast('Biometric updated')"/><span class="slider"></span></label></div>
+      <div class="toggle"><div><div class="tlabel">Two-step verification</div><div class="tsub">Require a code at sign on</div></div>
+        <label class="switch"><input type="checkbox" checked onchange="toast('2SV setting saved')"/><span class="slider"></span></label></div>
+      <div class="toggle"><div><div class="tlabel">Push alerts</div><div class="tsub">Login, balance, and transaction alerts</div></div>
+        <label class="switch"><input type="checkbox" ${state.pushAlerts?'checked':''} onchange="state.pushAlerts=this.checked;toast('Alerts saved')"/><span class="slider"></span></label></div>
+      <div class="toggle"><div><div class="tlabel">Show balance without signing on</div><div class="tsub">Quick-balance widget</div></div>
+        <label class="switch"><input type="checkbox" ${state.balance24?'checked':''} onchange="state.balance24=this.checked;toast('Quick-balance saved')"/><span class="slider"></span></label></div>
+      <div style="height:10px"></div>
+      <button class="btn-ghost block" onclick="toast('Change password')">Change password</button>
+      <div style="height:8px"></div>
+      <button class="btn-ghost block" onclick="toast('Trusted devices')">Trusted devices</button>
+    </div>
+    <div class="list-group">
+      <button class="li" onclick="toast('Contact info')"><span class="lic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.7A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.4-1.4a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg></span><div class="lit"><div class="l1">Contact information</div><div class="l2">Phone, email, mailing address</div></div>${ICON.chev}</button>
+      <button class="li" onclick="toast('Alerts')"><span class="lic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 16v-5a6 6 0 1 0-12 0v5l-2 2h16z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg></span><div class="lit"><div class="l1">Manage alerts</div><div class="l2">Balance, transactions, security</div></div>${ICON.chev}</button>
+      <button class="li" onclick="toast('App appearance')"><span class="lic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 0 0 18z"/></svg></span><div class="lit"><div class="l1">Display &amp; appearance</div><div class="l2">Theme, font size, language</div></div>${ICON.chev}</button>
+      <button class="li" onclick="toast('Privacy center')"><span class="lic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 4 6v6c0 5 3.5 9 8 10 4.5-1 8-5 8-10V6z"/></svg></span><div class="lit"><div class="l1">Privacy, cookies &amp; data</div><div class="l2">Control how your data is used</div></div>${ICON.chev}</button>
+      <button class="li" onclick="toast('About Wells Fargo Mobile v26.04')"><span class="lic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></span><div class="lit"><div class="l1">About &amp; legal</div><div class="l2">Version 26.04 · Terms · Licenses</div></div>${ICON.chev}</button>
+    </div>`);
+}
+
+function featHelp(){
+  featureShell('Help & support',`
+    <p class="lead">Get answers fast or talk to a real person 24/7.</p>
+    <div class="list-group">
+      <a class="li" href="tel:18008693557"><span class="lic" style="background:#e7f5ec;color:var(--green)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.7A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.4-1.4a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg></span><div class="lit"><div class="l1">Call 1-800-869-3557</div><div class="l2">24 hours a day, 7 days a week</div></div><span class="liv" style="color:var(--green)">Call</span></a>
+      <a class="li" href="sms:18008693557"><span class="lic" style="background:#e8eff7;color:var(--navy)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span><div class="lit"><div class="l1">Chat with a banker</div><div class="l2">Secure messaging · Typical wait: 2 min</div></div><span class="liv" style="color:var(--navy)">Chat</span></a>
+      <button class="li" onclick="openFeature('atm')"><span class="lic" style="background:#fbeaeb;color:var(--wf-red)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s-8-7-8-13a8 8 0 1 1 16 0c0 6-8 13-8 13z"/><circle cx="12" cy="9" r="2.5"/></svg></span><div class="lit"><div class="l1">Find ATM / branch</div><div class="l2">12,700+ ATMs · 4,800+ branches</div></div>${ICON.chev}</button>
+      <button class="li" onclick="toast('Appointment requested')"><span class="lic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18"/></svg></span><div class="lit"><div class="l1">Schedule an appointment</div><div class="l2">Meet with a banker in person</div></div>${ICON.chev}</button>
+      <button class="li" onclick="toast('Opening FAQ')"><span class="lic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg></span><div class="lit"><div class="l1">Frequently asked questions</div><div class="l2">Accounts, cards, Zelle®, security</div></div>${ICON.chev}</button>
+      <button class="li" onclick="toast('Report fraud — connecting to support')"><span class="lic" style="background:#fbeaeb;color:var(--wf-red)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 2 18a2 2 0 0 0 1.7 3h16.6A2 2 0 0 0 22 18L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></span><div class="lit"><div class="l1" style="color:var(--wf-red)">Report fraud or a dispute</div><div class="l2">Unauthorized charge, identity theft</div></div>${ICON.chev}</button>
+    </div>
+    <div class="form-card">
+      <h3>Quick help topics</h3>
+      <div class="list-group" style="margin:0;border:0">
+        <button class="li" style="padding:12px 0"><span class="lit"><span class="l1">Reset password or unlock account</span></span>${ICON.chev}</button>
+        <button class="li" style="padding:12px 0"><span class="lit"><span class="l1">Set up direct deposit</span></span>${ICON.chev}</button>
+        <button class="li" style="padding:12px 0"><span class="lit"><span class="l1">Order checks</span></span>${ICON.chev}</button>
+        <button class="li" style="padding:12px 0"><span class="lit"><span class="l1">Wire transfer instructions</span></span>${ICON.chev}</button>
+        <button class="li" style="padding:12px 0"><span class="lit"><span class="l1">Routing number: 051000017</span></span></button>
+      </div>
+    </div>`);
+}
+
+function featPayHub(){
+  featureShell('Pay & Transfer',`
+    <p class="lead">One place to move money — between accounts, to people, or to pay bills.</p>
+    <div class="list-group">
+      <button class="li" onclick="openFeature('transfer')"><span class="lic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 7h13M7 7l3-3M7 7l3 3M17 17H4m13 0-3 3m3-3-3-3"/></svg></span><div class="lit"><div class="l1">Transfer money</div><div class="l2">Between accounts · External transfers</div></div>${ICON.chev}</button>
+      <button class="li" onclick="openFeature('zelle')"><span class="lic" style="color:var(--fargo)"><b style="font-family:Georgia,serif;font-style:italic;font-size:16px">Z</b></span><div class="lit"><div class="l1">Send &amp; receive with Zelle®</div><div class="l2">To friends and family in minutes</div></div>${ICON.chev}</button>
+      <button class="li" onclick="openFeature('paybills')"><span class="lic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h18M3 12h18M3 17h12"/></svg></span><div class="lit"><div class="l1">Pay bills</div><div class="l2">Schedule and manage payments</div></div>${ICON.chev}</button>
+      <button class="li" onclick="toast('Wire transfer')"><span class="lic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg></span><div class="lit"><div class="l1">Wire money</div><div class="l2">Domestic and international wires</div></div>${ICON.chev}</button>
+      <button class="li" onclick="toast('Request money')"><span class="lic" style="background:#e7f5ec;color:var(--green)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5M5 12l7-7 7 7"/></svg></span><div class="lit"><div class="l1">Request money</div><div class="l2">Send a request with Zelle®</div></div>${ICON.chev}</button>
+      <button class="li" onclick="toast('Direct deposit')"><span class="lic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18M7 15h4"/></svg></span><div class="lit"><div class="l1">Set up direct deposit</div><div class="l2">Get a prefilled form</div></div>${ICON.chev}</button>
+    </div>`);
+}
+
+function featFargo(){
+  // Fargo AI assistant
+  featureShell('Ask Fargo',`
+    <div class="chat" id="chat-box">
+      <div class="bubble bot">Hi, I'm Fargo — your virtual assistant. I can help with balances, transactions, transfers, bills, cards, and more. What can I do for you?</div>
+      <div class="bubble bot">Try: <i>"What's my checking balance?"</i> or <i>"Recent deposits"</i></div>
+    </div>
+    <div class="chat-input">
+      <input id="chat-in" type="text" placeholder="Ask Fargo anything…" onkeydown="if(event.key==='Enter')sendChat()"/>
+      <button class="chat-send" onclick="sendChat()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg></button>
+    </div>`);
+}
+function sendChat(){
+  const i=$('#chat-in'), v=i.value.trim(); if(!v)return;
+  const box=$('#chat-box');
+  box.insertAdjacentHTML('beforeend',`<div class="bubble me">${esc(v)}</div>`);
+  i.value=''; box.scrollTop=box.scrollHeight;
+  setTimeout(()=>{
+    let reply;
+    const q=v.toLowerCase();
+    if(q.includes('balance')){const a=ACCOUNTS.find(x=>x.id==='chk');reply=`Your Everyday checking balance is ${money(a.balance)}. Available is ${money(a.available)}.`;}
+    else if(q.includes('savings')){const a=ACCOUNTS.find(x=>x.id==='sav');reply=`Your Way2Save Savings balance is ${money(a.balance)}.`;}
+    else if(q.includes('deposit')||q.includes('army')||q.includes('dfas')){reply='Your last DFAS deposit was military base pay on the 1st and mid-month on the 15th. Deposits are typically available by 9:00 AM ET.';}
+    else if(q.includes('card')){reply='Your debit card is currently '+((state.cardOn?'ON':'OFF'))+'. You can manage it under Card controls.';}
+    else if(q.includes('transfer')){reply='I can help with that — opening Transfer now.';setTimeout(()=>openFeature('transfer'),700);}
+    else if(q.includes('bill')){reply='Opening Bill Pay for you.';setTimeout(()=>openFeature('paybills'),700);}
+    else if(q.includes('fico')||q.includes('credit')){reply='Your FICO® Score is 820 — in the Excellent range. Want the full breakdown?';setTimeout(()=>openFeature('fico'),900);}
+    else if(q.includes('zelle')){reply='Opening Zelle®.';setTimeout(()=>openFeature('zelle'),700);}
+    else if(q.includes('routing')){reply='Your Wells Fargo routing number is 051000017.';}
+    else if(q.includes('atm')){reply='Finding nearby ATMs and branches…';setTimeout(()=>openFeature('atm'),700);}
+    else if(q.includes('hello')||q.includes('hi')){reply='Hi '+FIRST_NAME+'! How can I help today?';}
+    else{reply='I can help with balances, deposits, transfers, bills, Zelle®, card controls, FICO® Score, ATMs, and more. What would you like to do?';}
+    box.insertAdjacentHTML('beforeend',`<div class="bubble bot">${esc(reply)}</div>`);
+    box.scrollTop=box.scrollHeight;
+  },550);
+}
+
+const FEATURES={transfer:['Transfer money',featTransfer],deposit:['Deposit a check',featDeposit],zelle:['Zelle®',featZelle],
+  paybills:['Pay bills',featPayBills],cards:['Card controls',featCards],atm:['ATMs & branches',featATM],
+  statements:['Statements & documents',featStatements],messages:['Secure messages',featMessages],
+  invest:['Brokerage & investments',featInvest],fico:['FICO® Score',featFICO],rewards:['Go Far® Rewards',featRewards],
+  lifeSync:['LifeSync®',featLifeSync],profile:['Profile & settings',featProfile],help:['Help & support',featHelp],
+  payhub:['Pay & Transfer',featPayHub],fargo:['Ask Fargo',featFargo]};
+function openFeature(key){const f=FEATURES[key]; if(!f){toast('Coming soon');return;} f[1]();}
+
+/* menu sheet */
+const MENU=[
+  ['Account summary','home'],['Transfer money','transfer'],['Pay bills','paybills'],['Deposit checks','deposit'],
+  ['Zelle®','zelle'],['Wire money',null],['Card settings','cards'],['Statements & documents','statements'],
+  ['Brokerage & investments','invest'],['FICO® Score','fico'],['Go Far® Rewards','rewards'],['LifeSync®','lifeSync'],
+  ['Secure messages','messages'],['ATMs & branches','atm'],['Profile & settings','profile'],
+  ['Security center',null],['Privacy center',null],['Help & support','help'],
+];
+function openMenu(){
+  $('#sheet-list').innerHTML=MENU.map(([name,key])=>`
+    <button class="mitem" onclick="${key?`closeSheet();openFeature('${key}')`:`closeSheet();toast('${esc(name)} — coming soon')`}">
+      <span class="mi"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m9 12 2 2 4-4"/></svg></span>
+      <span class="ml">${esc(name)}</span>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="2.5"><path d="m9 6 6 6-6 6"/></svg>
+    </button>`).join('');
+  $('#sheet').classList.add('show');$('#mask').classList.add('show');
+}
+function closeSheet(){$('#sheet').classList.remove('show');$('#mask').classList.remove('show');}
+
+let tT;
+function toast(m){const el=$('#toast');el.textContent=m;el.classList.add('show');clearTimeout(tT);tT=setTimeout(()=>el.classList.remove('show'),1700);}
+
+/* startup */
+if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(()=>{});}
+window.addEventListener('load',()=>{
+  setSplashMsg('Starting Wells Fargo Mobile…');
+  setTimeout(()=>setSplashMsg('Contacting wellsfargo.com…'),400);
+  setTimeout(()=>setSplashMsg('Preparing sign on…'),900);
+  setTimeout(()=>{u.value=DEMO_USER;document.getElementById('uf-u').classList.add('filled');refreshSignon();hideSplash();go('login');p.focus();},1400);
+});
+</script>
+</body>
+</html>
