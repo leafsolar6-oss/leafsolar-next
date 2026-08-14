@@ -145,7 +145,7 @@ export default async function Home() {
                 <Image src={category.image} alt={category.name} fill sizes="(max-width:640px) 42vw, 14vw" className="object-contain p-2 transition duration-500 group-hover:scale-105" />
               </div>
               <h3 className="mt-3 text-center text-xs font-extrabold leading-tight text-gray-900 sm:text-sm">{category.name}</h3>
-              <p className="mt-0.5 text-center text-[10px] text-gray-400">{category.count} selected</p>
+              <p className="mt-0.5 text-center text-[10px] text-gray-600">{category.count} selected</p>
             </Link>
           ))}
         </div>
@@ -174,8 +174,8 @@ export default async function Home() {
           <div className="grid grid-cols-2 gap-px bg-white/10">
             {series.map(item => (
               <Link key={item.name} href={item.href} className="group flex min-h-36 flex-col justify-between bg-white/[.04] p-5 transition hover:bg-white/[.09] sm:p-7">
-                <span className="text-[10px] font-extrabold uppercase tracking-[.16em] text-white/50">{item.count} packages</span>
-                <div><h3 className="font-display text-xl font-black sm:text-2xl">{item.name}</h3><p className="mt-1 text-xs text-white/55">from <b className="text-white">{formatNaira(item.from)}</b></p></div>
+                <span className="text-[10px] font-extrabold uppercase tracking-[.16em] text-white/75">{item.count} packages</span>
+                <div><h3 className="font-display text-xl font-black sm:text-2xl">{item.name}</h3><p className="mt-1 text-xs text-white/75">from <b className="text-white">{formatNaira(item.from)}</b></p></div>
                 <span className="mt-4 text-sm font-bold text-sun-400 transition group-hover:translate-x-1">Explore →</span>
               </Link>
             ))}
@@ -227,7 +227,7 @@ export default async function Home() {
       <section className="bg-gray-950 py-10 text-white">
         <div className="container-wide flex flex-col items-center justify-between gap-6 text-center lg:flex-row lg:text-left">
           <div><p className="text-xs font-black uppercase tracking-[.18em] text-sun-400">One company. Power + appliances.</p><h2 className="mt-2 font-display text-2xl font-black sm:text-3xl">Not sure what to buy? We&apos;ll help you choose.</h2></div>
-          <div className="flex flex-wrap justify-center gap-3"><a href={whatsappUrl('Hello Leaf Solar! I need help choosing a product or solar package.')} className="btn bg-[#25D366] text-white hover:bg-[#20bd5a]">Chat on WhatsApp</a><a href={`tel:${site.phoneHref}`} className="btn border border-white/20 text-white hover:bg-white/10">Call {site.phone}</a></div>
+          <div className="flex flex-wrap justify-center gap-3"><a href={whatsappUrl('Hello Leaf Solar! I need help choosing a product or solar package.')} className="btn bg-[#25D366] text-emerald-950 hover:bg-[#20bd5a]">Chat on WhatsApp</a><a href={`tel:${site.phoneHref}`} className="btn border border-white/20 text-white hover:bg-white/10">Call {site.phone}</a></div>
         </div>
       </section>
     </>

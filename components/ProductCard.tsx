@@ -39,7 +39,7 @@ export default function ProductCard({ product, priority = false }: { product: Pr
         <div className="mt-auto pt-3">
           <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
             <span className="font-display text-base font-black text-gray-950 sm:text-xl">{formatNaira(product.price)}</span>
-            {product.oldPrice && <span className="text-[10px] text-gray-400 line-through sm:text-xs">{formatNaira(product.oldPrice)}</span>}
+            {product.oldPrice && <span className="text-[10px] text-gray-600 line-through sm:text-xs">{formatNaira(product.oldPrice)}</span>}
           </div>
           <div className="mt-3 sm:hidden">
             <AddToCartButton product={product} className="w-full px-2 py-2 text-xs" />

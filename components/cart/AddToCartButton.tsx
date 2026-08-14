@@ -33,7 +33,7 @@ export default function AddToCartButton({
       onClick={event => { event.preventDefault(); event.stopPropagation(); add(); }}
       disabled={!product.inStock}
       className={`${compact ? 'grid h-10 w-10 place-items-center rounded-full' : 'btn rounded-xl'} bg-leaf-700 font-bold text-white transition hover:bg-leaf-800 disabled:cursor-not-allowed disabled:bg-gray-300 ${className}`}
-      aria-label={`Add ${product.name} to cart`}
+      aria-label={compact ? `Add ${product.name} to cart` : product.inStock ? `Add to cart: ${product.name}` : `Out of stock: ${product.name}`}
     >
       {added ? (
         <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" strokeWidth="2.4"><path d="m5 12 4 4L19 6" /></svg>
