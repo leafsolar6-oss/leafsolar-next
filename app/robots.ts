@@ -1,13 +1,17 @@
 import type { MetadataRoute } from 'next';
 
+const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://leafsolar.ng').replace(/\/$/, '');
+
 export default function robots(): MetadataRoute.Robots {
-  const base = process.env.NEXT_PUBLIC_SITE_URL || 'https://leafsolar.ng';
   return {
-    rules: {
-      userAgent: '*',
-      allow: '/',
-      disallow: ['/demo', '/demo/', '/admin/', '/checkout', '/api/'],
-    },
-    sitemap: `${base}/sitemap.xml`,
+    rules: [
+      {
+        userAgent: '*',
+        allow: '/',
+        disallow: ['/admin/', '/api/', '/demo/', '/checkout/payment-status'],
+      },
+    ],
+    sitemap: `${siteUrl}/sitemap.xml`,
+    host: siteUrl,
   };
 }

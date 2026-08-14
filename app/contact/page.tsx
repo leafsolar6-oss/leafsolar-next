@@ -5,8 +5,10 @@ import { getProducts } from '@/lib/catalog-store';
 export const dynamic = 'force-dynamic';
 
 export const metadata = {
-  title: 'Contact',
-  description: 'Contact Leaf Solar in Ibadan for product enquiries, solar project quotations, delivery information and customer support.'
+  title: 'Contact Leaf Solar in Ibadan',
+  description: 'Contact Leaf Solar in Ibadan for product enquiries, solar project quotations, site-assessment information, delivery and customer support.',
+  alternates: { canonical: '/contact' },
+  openGraph: { url: '/contact', type: 'website', title: 'Contact Leaf Solar in Ibadan', description: 'Contact Leaf Solar for product enquiries, solar project quotations, delivery information and support.', images: ['/leaf-solar-og.jpg'] },
 };
 
 export default async function Contact({ searchParams }: { searchParams: Promise<{ pkg?: string; product?: string }> }) {

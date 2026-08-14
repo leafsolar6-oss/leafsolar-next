@@ -1,8 +1,10 @@
 import { site, whatsappUrl } from '@/lib/data';
 
 export const metadata = {
-  title: 'About Us',
+  title: 'About Leaf Solar in Ibadan',
   description: 'Meet Leaf Solar & Electronics, a registered Nigerian solar and home-appliance company and authorized dealer based in Ibadan.',
+  alternates: { canonical: '/about' },
+  openGraph: { url: '/about', type: 'website', title: 'About Leaf Solar in Ibadan', description: 'Learn about Leaf Solar solar planning, equipment and home-appliance retail in Ibadan.', images: ['/leaf-solar-og.jpg'] },
 };
 
 const values = [

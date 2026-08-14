@@ -3,6 +3,7 @@ import { site } from '@/lib/data';
 export const metadata = {
   title: 'Privacy Policy',
   description: 'How Leaf Solar handles information on leafsolar.ng and in the Leaf Solar Admin Android app.',
+  alternates: { canonical: '/privacy' },
 };
 
 const sections = [

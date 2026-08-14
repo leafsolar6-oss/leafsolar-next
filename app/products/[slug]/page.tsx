@@ -32,6 +32,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     openGraph: {
       url: `/products/${product.slug}`,
       type: 'website',
+      title: product.name,
+      description: product.description,
       ...(imageUrl ? { images: [{ url: imageUrl, alt: product.imageAlt }] } : {}),
     },
   };
@@ -44,6 +46,11 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   if (!product) return notFound();
 
   const related = products.filter(item => item.categoryLabel === product.categoryLabel && item.id !== product.id).slice(0, 4);
+  const collection = product.department === 'solar'
+    ? { name: 'Solar products', href: '/solar-products' }
+    : product.department === 'packages'
+      ? { name: 'Solar packages', href: '/packages' }
+      : { name: 'Home appliances', href: '/home-appliances-ibadan' };
   const badge = productBadge(product);
   const saving = product.oldPrice ? product.oldPrice - product.price : 0;
   const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://leafsolar.ng').replace(/\/$/, '');
@@ -55,15 +62,14 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   });
   const productStructuredData = {
     '@context': 'https://schema.org', '@type': 'Product', name: product.name, description: product.description,
-    sku: product.sku || undefined, brand: { '@type': 'Brand', name: product.brand }, ...(structuredImages.length > 0 ? { image: structuredImages } : {}), url: productUrl,
-    offers: { '@type': 'Offer', url: productUrl, priceCurrency: 'NGN', price: product.price, availability: product.inStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock', seller: { '@type': 'Organization', name: site.name } },
+    sku: product.sku || undefined, category: product.categoryLabel, brand: { '@type': 'Brand', name: product.brand }, ...(structuredImages.length > 0 ? { image: structuredImages } : {}), url: productUrl,
+    offers: { '@type': 'Offer', url: productUrl, priceCurrency: 'NGN', price: product.price, availability: product.inStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock', seller: { '@type': 'Store', '@id': `${baseUrl}/#store`, name: site.name } },
   };
   const breadcrumbStructuredData = {
     '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Home', item: baseUrl },
-      { '@type': 'ListItem', position: 2, name: 'Products', item: `${baseUrl}/products` },
-      { '@type': 'ListItem', position: 3, name: product.categoryLabel, item: `${baseUrl}/products?c=${encodeURIComponent(product.categoryLabel)}` },
-      { '@type': 'ListItem', position: 4, name: product.name, item: productUrl },
+      { '@type': 'ListItem', position: 2, name: collection.name, item: `${baseUrl}${collection.href}` },
+      { '@type': 'ListItem', position: 3, name: product.name, item: productUrl },
     ],
   };
 
@@ -74,7 +80,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
       <section className="border-b border-gray-100 bg-white">
         <div className="container-wide py-8 sm:py-12">
           <nav className="scrollbar-none flex items-center gap-2 overflow-x-auto whitespace-nowrap text-xs font-semibold text-gray-500" aria-label="Breadcrumb">
-            <Link href="/" className="hover:text-leaf-700">Home</Link><span>/</span><Link href="/products" className="hover:text-leaf-700">Shop</Link><span>/</span><Link href={`/products?c=${encodeURIComponent(product.categoryLabel)}`} className="hover:text-leaf-700">{product.categoryLabel}</Link><span>/</span><span className="max-w-52 truncate text-gray-800">{product.name}</span>
+            <Link href="/" className="hover:text-leaf-700">Home</Link><span>/</span><Link href={collection.href} className="hover:text-leaf-700">{collection.name}</Link><span>/</span><span className="max-w-52 truncate text-gray-800">{product.name}</span>
           </nav>
 
           <div className="mt-6 grid items-start gap-8 lg:grid-cols-[1.03fr_.97fr] lg:gap-14">

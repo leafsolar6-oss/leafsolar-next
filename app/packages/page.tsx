@@ -5,11 +5,16 @@ import { getProducts } from '@/lib/catalog-store';
 
 export const dynamic = 'force-dynamic';
 
-export const metadata = {
-  title: 'Solar Packages',
-  description: 'Compare Leaf Solar tubular, lithium, commercial and industrial solar package starting points, subject to confirmed site design and written scope.',
-  alternates: { canonical: '/packages' },
-};
+export async function generateMetadata({ searchParams }: { searchParams: Promise<{ series?: string }> }) {
+  const { series } = await searchParams;
+  return {
+    title: 'Solar Packages for Homes & Businesses',
+    description: 'Compare Leaf Solar tubular, lithium, commercial and industrial solar package starting points, subject to confirmed load, site design and written scope.',
+    alternates: { canonical: '/packages' },
+    openGraph: { url: '/packages', type: 'website' as const, title: 'Solar Packages for Homes & Businesses', description: 'Compare Leaf Solar package starting points subject to confirmed load, site design and written scope.', images: ['/leaf-solar-og.jpg'] },
+    ...(series ? { robots: { index: false, follow: true } } : {}),
+  };
+}
 
 const groups = [
   { key: 'tubular', label: 'Tubular', category: 'Tubular Solar', description: 'Catalogue starting points built around tubular battery systems.', tone: 'bg-[#eef6e9]' },

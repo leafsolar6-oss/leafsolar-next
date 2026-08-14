@@ -18,11 +18,11 @@ const applianceDepartments = [
 ];
 
 const powerDepartments = [
+  { href: '/solar-installation-ibadan', label: 'Solar installation in Ibadan', detail: 'Load review, site assessment and written scope' },
   { href: '/packages', label: 'Solar package starting points', detail: 'Final scope confirmed after review' },
-  { href: '/products?c=Solar%20Panels', label: 'Solar panels', detail: 'Mono and bifacial panel listings' },
-  { href: '/products?c=Solar%20Batteries', label: 'Solar batteries', detail: 'Lithium energy storage' },
-  { href: '/products?c=Inverters', label: 'Inverters', detail: 'Hybrid solar power control' },
-  { href: '/products?c=Generators%20%26%20Power', label: 'Generators & UPS', detail: 'Backup generators and UPS systems' },
+  { href: '/solar-products#solar-panels', label: 'Solar panels', detail: 'Current panel catalogue listings' },
+  { href: '/solar-products#solar-batteries', label: 'Solar batteries', detail: 'Current energy-storage listings' },
+  { href: '/solar-products#solar-inverters', label: 'Solar inverters', detail: 'Equipment for a confirmed system design' },
 ];
 
 const popularSearches = [
@@ -40,8 +40,9 @@ const categoryNavigation = [
   { href: '/products?c=Air%20Conditioners', label: 'Air Conditioners' },
   { href: '/products?c=Kitchen%20%26%20Cooking', label: 'Kitchen' },
   { href: '/products?sort=sale', label: 'Deals' },
-  { href: '/products?d=solar', label: 'Solar Equipment' },
+  { href: '/solar-products', label: 'Solar Equipment' },
   { href: '/packages', label: 'Solar Packages' },
+  { href: '/blog', label: 'Solar Guides' },
 ];
 
 export default function Header() {
@@ -162,7 +163,7 @@ export default function Header() {
         <div id="departments-mega-menu" data-departments-menu className="absolute inset-x-0 top-full hidden max-h-[calc(100vh-9rem)] overflow-y-auto border-t border-gray-100 bg-white shadow-[0_24px_50px_rgba(15,23,18,.18)] lg:block">
           <div className="container-wide grid gap-8 py-7 lg:grid-cols-[1.45fr_1fr_.78fr]">
             <section>
-              <div className="flex items-center justify-between"><div><p className="text-[10px] font-extrabold uppercase tracking-[.16em] text-leaf-700">Home technology</p><h2 className="mt-1 font-display text-xl font-black">Appliances & electronics</h2></div><Link href="/products?d=electronics" onClick={closeMenus} className="text-xs font-extrabold text-leaf-700">View all →</Link></div>
+              <div className="flex items-center justify-between"><div><p className="text-[10px] font-extrabold uppercase tracking-[.16em] text-leaf-700">Home technology</p><h2 className="mt-1 font-display text-xl font-black">Appliances & electronics</h2></div><Link href="/home-appliances-ibadan" onClick={closeMenus} className="text-xs font-extrabold text-leaf-700">View all →</Link></div>
               <div className="mt-4 grid grid-cols-2 gap-2">
                 {applianceDepartments.map(item => (
                   <Link key={item.href} href={item.href} onClick={closeMenus} className="group rounded-xl border border-transparent p-3 transition hover:border-leaf-100 hover:bg-leaf-50/70">
@@ -212,7 +213,7 @@ export default function Header() {
               <div className="scrollbar-none mt-3 flex gap-2 overflow-x-auto pb-1">{popularSearches.map(item => <Link key={item.label} href={item.href} onClick={closeMenus} className="shrink-0 rounded-full border border-gray-200 px-3 py-2 text-xs font-bold text-gray-600">{item.label}</Link>)}</div>
             </div>
             <div className="mt-5 grid gap-1 border-t border-gray-100 pt-4 text-sm font-bold">
-              {[['/', 'Home'], ['/products', 'Shop all products'], ['/solar-calculator', 'Solar calculator'], ['/about', 'About Leaf Solar'], ['/contact', 'Contact & support']].map(([href, label]) => (
+              {[['/', 'Home'], ['/products', 'Shop all products'], ['/solar-installation-ibadan', 'Solar installation in Ibadan'], ['/solar-products', 'Solar equipment'], ['/blog', 'Solar guides'], ['/solar-calculator', 'Solar calculator'], ['/about', 'About Leaf Solar'], ['/contact', 'Contact & support']].map(([href, label]) => (
                 <Link key={href} href={href} onClick={closeMenus} className={`rounded-lg px-2 py-2.5 ${pathname === href ? 'text-leaf-700' : 'text-gray-700'}`}>{label}</Link>
               ))}
             </div>

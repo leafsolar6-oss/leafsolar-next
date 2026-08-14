@@ -1,27 +1,33 @@
 import type { MetadataRoute } from 'next';
 import { getProducts } from '@/lib/catalog-store';
+import { solarGuides } from '@/lib/solar-guides';
+
+const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://leafsolar.ng').replace(/\/$/, '');
+const contentUpdated = new Date('2026-08-14T00:00:00+01:00');
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const products = await getProducts();
-  const base = process.env.NEXT_PUBLIC_SITE_URL || 'https://leafsolar.ng';
-  const now = new Date();
+  const staticRoutes = [
+    '/',
+    '/products',
+    '/home-appliances-ibadan',
+    '/solar-products',
+    '/solar-installation-ibadan',
+    '/packages',
+    '/solar-calculator',
+    '/blog',
+    '/about',
+    '/contact',
+    '/shipping-delivery',
+    '/returns',
+    '/warranty',
+    '/solar-installation-policy',
+    '/privacy',
+  ];
 
-  const pages = [
-    '', '/packages', '/products', '/solar-calculator', '/about', '/contact', '/blog', '/privacy',
-    '/shipping-delivery', '/returns', '/warranty', '/solar-installation-policy',
-  ].map(path => ({
-    url: `${base}${path}`,
-    lastModified: now,
-    changeFrequency: path === '' || path === '/products' ? 'weekly' as const : 'monthly' as const,
-    priority: path === '' ? 1 : path === '/products' || path === '/packages' ? 0.9 : 0.7,
-  }));
-
-  const productPages = products.map(product => ({
-    url: `${base}/products/${product.slug}`,
-    lastModified: now,
-    changeFrequency: 'weekly' as const,
-    priority: 0.8,
-  }));
-
-  return [...pages, ...productPages];
+  return [
+    ...staticRoutes.map(route => ({ url: `${siteUrl}${route}`, lastModified: contentUpdated })),
+    ...solarGuides.map(guide => ({ url: `${siteUrl}/blog/${guide.slug}`, lastModified: new Date(`${guide.updated}T00:00:00+01:00`) })),
+    ...products.map(product => ({ url: `${siteUrl}/products/${product.slug}` })),
+  ];
 }

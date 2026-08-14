@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import ProductCard from '@/components/ProductCard';
@@ -5,6 +6,18 @@ import { formatNaira, packagesFromProducts, shopCategoriesFromProducts, site, wh
 import { getProducts } from '@/lib/catalog-store';
 
 export const dynamic = 'force-dynamic';
+
+export const metadata: Metadata = {
+  title: { absolute: 'Solar Installation & Appliances in Ibadan | Leaf Solar' },
+  description: 'Plan a solar installation or shop solar equipment, electronics and home appliances from Leaf Solar in Ibadan. Free delivery within Ibadan; quotes elsewhere.',
+  alternates: { canonical: '/' },
+  openGraph: {
+    url: '/',
+    title: 'Solar Installation & Appliances in Ibadan | Leaf Solar',
+    description: 'Solar planning, equipment, electronics and home appliances from Leaf Solar in Ibadan.',
+    images: [{ url: '/leaf-solar-og.jpg', width: 1200, height: 630, alt: 'Leaf Solar — solar, electronics and appliances in Ibadan' }],
+  },
+};
 
 const popularSearches = [
   { href: '/products?q=TV%2032', label: '32-inch TVs' },
@@ -50,15 +63,15 @@ export default async function Home() {
             <div className="relative grid h-full lg:grid-cols-[.92fr_1.08fr]">
               <div className="z-10 flex flex-col justify-center px-6 py-10 sm:px-10 lg:px-12 lg:py-14">
                 <span className="inline-flex w-fit items-center gap-2 rounded-md bg-white/10 px-3 py-2 text-[10px] font-extrabold uppercase tracking-[.16em] text-leaf-100 ring-1 ring-white/10">
-                  <i className="h-2 w-2 rounded-full bg-sun-400" /> Electronics · Appliances · Solar
+                  <i className="h-2 w-2 rounded-full bg-sun-400" /> Solar · Electronics · Appliances in Ibadan
                 </span>
                 <h1 className="mt-6 max-w-xl font-display text-4xl font-black leading-[.98] tracking-[-.045em] sm:text-6xl lg:text-[4.2rem]">
-                  Your home,<br/><span className="text-sun-400">better equipped.</span>
+                  Solar power and<br/><span className="text-sun-400">home appliances.</span>
                 </h1>
-                <p className="mt-5 max-w-lg text-base leading-relaxed text-white/75 sm:text-lg">Browse LG, Hisense, Maxi and Mora appliances, solar equipment and system starting points in one catalogue.</p>
+                <p className="mt-5 max-w-lg text-base leading-relaxed text-white/75 sm:text-lg">Plan an Ibadan solar installation or browse Leaf Solar&apos;s catalogue of electronics, appliances and solar equipment.</p>
                 <div className="mt-7 flex flex-wrap gap-3">
-                  <Link href="/products?d=electronics" className="btn bg-sun-400 text-gray-950 hover:bg-sun-500">Shop appliances <span>→</span></Link>
-                  <Link href="/packages" className="btn border border-white/20 bg-white/10 text-white hover:bg-white/15">Explore solar</Link>
+                  <Link href="/home-appliances-ibadan" className="btn bg-sun-400 text-gray-950 hover:bg-sun-500">Shop appliances <span>→</span></Link>
+                  <Link href="/solar-installation-ibadan" className="btn border border-white/20 bg-white/10 text-white hover:bg-white/15">Plan solar installation</Link>
                 </div>
                 <div className="mt-8 flex flex-wrap gap-x-5 gap-y-2 text-[11px] font-bold text-white/65 sm:text-xs">
                   <span>✓ Fouani Authorized Dealer</span><span>✓ {site.rcNumber}</span><span>✓ Secure Paystack checkout</span>
@@ -127,7 +140,7 @@ export default async function Home() {
         </div>
         <div className="scrollbar-none -mx-4 mt-7 flex snap-x gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:grid-cols-4 sm:px-0 lg:grid-cols-8">
           {shopCategories.map(category => (
-            <Link key={category.slug} href={category.slug === 'Solar' ? '/products?d=solar' : `/products?c=${encodeURIComponent(category.slug === 'TVs' ? 'Televisions' : category.slug)}`} className="group w-[42vw] max-w-[180px] shrink-0 snap-start sm:w-auto sm:max-w-none">
+            <Link key={category.slug} href={category.slug === 'Solar' ? '/solar-products' : `/products?c=${encodeURIComponent(category.slug === 'TVs' ? 'Televisions' : category.slug)}`} className="group w-[42vw] max-w-[180px] shrink-0 snap-start sm:w-auto sm:max-w-none">
               <div className="relative aspect-square overflow-hidden rounded-2xl bg-[#f5f6f2] ring-1 ring-gray-100">
                 <Image src={category.image} alt={category.name} fill sizes="(max-width:640px) 42vw, 14vw" className="object-contain p-2 transition duration-500 group-hover:scale-105" />
               </div>
@@ -186,6 +199,27 @@ export default async function Home() {
           <div className="relative min-h-[310px] overflow-hidden rounded-[1.5rem] bg-[#f9e8df] p-7 sm:p-10">
             <div className="relative z-10 max-w-[55%]"><p className="text-xs font-black uppercase tracking-[.15em] text-[#9a4824]">Cool your space</p><h2 className="mt-3 font-display text-3xl font-black leading-tight sm:text-4xl">Comfort for<br/>every room.</h2><p className="mt-3 text-sm leading-relaxed text-gray-600">Air conditioners, fans and air coolers.</p><Link href="/products?c=Air%20Conditioners" className="btn btn-dark mt-6 text-sm">Shop cooling</Link></div>
             <div className="absolute -bottom-10 -right-12 h-[88%] w-[58%]"><Image src="/images/categories/air-conditioners.webp" alt="Air conditioner" fill sizes="500px" className="object-contain" /></div>
+          </div>
+        </div>
+      </section>
+
+      <section className="border-t border-gray-100 bg-[#f5f6f2] py-12 sm:py-16">
+        <div className="container-wide">
+          <div className="grid gap-10 lg:grid-cols-[.92fr_1.08fr] lg:items-start">
+            <div>
+              <p className="eyebrow">Leaf Solar in Ibadan</p>
+              <h2 className="section-title mt-2">Solar planning, equipment and home appliances in one place.</h2>
+              <p className="mt-5 max-w-2xl text-base leading-8 text-gray-600">Visit or contact Leaf Solar for appliance enquiries, listed solar equipment and project-specific solar quotations. Solar-system choices are reviewed against the intended load, relevant product limits and site information rather than a package name alone.</p>
+              <div className="mt-6 flex flex-wrap gap-3"><Link href="/solar-installation-ibadan" className="btn btn-primary">Solar installation in Ibadan</Link><Link href="/home-appliances-ibadan" className="btn border border-gray-300 bg-white text-gray-800 hover:border-leaf-400">Browse home appliances</Link></div>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {[
+                { href: '/blog/how-to-size-solar-system-nigeria', title: 'How to size a solar system', text: 'Build a realistic appliance and energy plan before choosing equipment.' },
+                { href: '/blog/solar-installation-cost-ibadan', title: 'What affects an Ibadan solar quote?', text: 'Understand the load, battery, panel, inverter and site factors.' },
+                { href: '/blog/lithium-vs-tubular-battery-nigeria', title: 'Lithium vs tubular batteries', text: 'Compare usable energy, compatibility, maintenance and project fit.' },
+                { href: '/blog/what-can-solar-system-power', title: 'What can solar power?', text: 'Connect appliance watts, operating hours and starting demand.' },
+              ].map(item => <Link key={item.href} href={item.href} className="rounded-2xl border border-gray-200 bg-white p-5 transition hover:border-leaf-300 hover:shadow-md"><h3 className="font-display text-lg font-black text-gray-950">{item.title}</h3><p className="mt-2 text-xs leading-6 text-gray-500">{item.text}</p><span className="mt-4 inline-flex text-xs font-extrabold text-leaf-700">Read guide →</span></Link>)}
+            </div>
           </div>
         </div>
       </section>

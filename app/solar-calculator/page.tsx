@@ -7,8 +7,10 @@ import { getProducts } from '@/lib/catalog-store';
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: 'Free Solar Load Calculator',
-  description: 'Enter appliance loads to get an indicative solar-system estimate and compare it with Leaf Solar package starting points.',
+  title: 'Free Solar Load Calculator for Nigeria',
+  description: 'Enter appliance loads and operating hours for an indicative solar-system estimate, then compare Leaf Solar package starting points and request a confirmed design.',
+  alternates: { canonical: '/solar-calculator' },
+  openGraph: { url: '/solar-calculator', type: 'website', title: 'Free Solar Load Calculator for Nigeria', description: 'Build an indicative solar-system estimate from appliance loads and operating hours.', images: ['/leaf-solar-og.jpg'] },
 };
 
 export default async function SolarCalculatorPage() {
