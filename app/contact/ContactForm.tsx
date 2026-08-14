@@ -1,11 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { packages } from '@/lib/data';
+import type { SolarPackage } from '@/lib/data';
 
 type Status = 'idle' | 'sending' | 'sent' | 'error';
 
-export default function ContactForm({ initialPkg, initialProduct }: { initialPkg: string; initialProduct: string }) {
+export default function ContactForm({ initialPkg, initialProduct, packages }: { initialPkg: string; initialProduct: string; packages: SolarPackage[] }) {
   const [status, setStatus] = useState<Status>('idle');
   const [error, setError] = useState('');
 

@@ -1,14 +1,33 @@
+import catalogue from './catalog.json';
+
 export type Product = {
+  id: number;
   slug: string;
   name: string;
+  sku: string;
   brand: string;
-  category: 'Inverter' | 'Battery' | 'Solar Panel' | 'Appliance';
+  category: string;
+  categoryLabel: string;
+  department: 'electronics' | 'solar' | 'packages';
   price: number;
-  oldPrice?: number;
-  badge?: string;
+  oldPrice?: number | null;
+  onSale: boolean;
   image: string;
   imageAlt: string;
   description: string;
+  inStock: boolean;
+  gallery?: string[];
+  specifications?: Array<{ name: string; value: string }>;
+  basePrice?: number;
+  trackInventory?: boolean;
+  stockQuantity?: number | null;
+  lowStockThreshold?: number | null;
+  offerId?: number | null;
+  offerTitle?: string | null;
+  offerBadge?: string | null;
+  offerEndsAt?: string | null;
+  offerFeatured?: boolean;
+  featured?: boolean;
 };
 
 export type SolarPackage = {
@@ -18,142 +37,93 @@ export type SolarPackage = {
   price: number;
   capacity: string;
   includes: string[];
-  highlight?: boolean;
+  series: string;
+  image: string;
+  productId: number;
 };
 
-// Product names, prices and photography are based on Leaf Solar's current catalogue.
-export const products: Product[] = [
-  {
-    slug: 'hisense-6kw-solar-inverter',
-    name: 'Hisense 6kW 48V Solar Inverter',
-    brand: 'Hisense',
-    category: 'Inverter',
-    price: 488900,
-    oldPrice: 504000,
-    badge: 'Launch offer',
-    image: '/images/products/hisense-6kw-inverter.jpg',
-    imageAlt: 'Hisense 6kW 48V solar inverter',
-    description: 'A genuine Hisense 6kW, 48V solar inverter supplied brand new and factory sealed with manufacturer warranty.',
-  },
-  {
-    slug: 'deye-6kw-off-grid-inverter',
-    name: 'Deye 6kW LV Off-Grid Inverter',
-    brand: 'Deye',
-    category: 'Inverter',
-    price: 531300,
-    oldPrice: 547700,
-    badge: '3% off',
-    image: '/images/products/deye-6kw-inverter.jpg',
-    imageAlt: 'Deye 6kW low-voltage off-grid inverter',
-    description: 'A single-phase 6kW low-voltage off-grid inverter from Deye, supplied brand new with full manufacturer warranty.',
-  },
-  {
-    slug: 'deye-7-6kwh-hv-battery',
-    name: 'Deye 7.6kWh High-Voltage Battery',
-    brand: 'Deye',
-    category: 'Battery',
-    price: 1738250,
-    oldPrice: 1792000,
-    badge: 'Lithium',
-    image: '/images/products/deye-7-6kwh-battery.jpg',
-    imageAlt: 'Deye 7.6kWh high-voltage lithium battery',
-    description: 'A genuine Deye 7.6kWh high-voltage battery for compatible solar storage systems, factory sealed and warrantied.',
-  },
-  {
-    slug: 'pylontech-5-12kwh-battery',
-    name: 'Pylontech 5.12kWh Lithium-Ion Battery',
-    brand: 'Pylontech',
-    category: 'Battery',
-    price: 1140750,
-    oldPrice: 1176000,
-    badge: 'Popular',
-    image: '/images/products/pylontech-5-12kwh-battery.jpg',
-    imageAlt: 'Pylontech 5.12kWh lithium-ion solar battery',
-    description: 'A compact 5.12kWh lithium-ion storage battery for dependable home and small-business solar installations.',
-  },
-  {
-    slug: 'jinko-725w-bifacial-panel',
-    name: 'Jinko 725W Bifacial Solar Panel',
-    brand: 'Jinko',
-    category: 'Solar Panel',
-    price: 186950,
-    oldPrice: 192700,
-    badge: 'High output',
-    image: '/images/products/jinko-725w-panel.jpg',
-    imageAlt: 'Jinko 725 watt bifacial solar panel',
-    description: 'A high-output 725W bifacial solar panel designed to capture light from both sides for efficient energy generation.',
-  },
-  {
-    slug: 'lg-1-5hp-inverter-ac',
-    name: 'LG 1.5HP Split Inverter AC',
-    brand: 'LG',
-    category: 'Appliance',
-    price: 444300,
-    oldPrice: 458000,
-    badge: 'Energy saving',
-    image: '/images/products/lg-1-5hp-inverter-ac.jpg',
-    imageAlt: 'LG 1.5 horsepower split inverter air conditioner',
-    description: 'A genuine LG 1.5HP split inverter air conditioner, supplied brand new, factory sealed and covered by manufacturer warranty.',
-  },
-  {
-    slug: 'hisense-90l-refrigerator',
-    name: 'Hisense 90L Refrigerator',
-    brand: 'Hisense',
-    category: 'Appliance',
-    price: 178500,
-    badge: 'Bestseller',
-    image: '/images/products/hisense-90l-refrigerator.jpg',
-    imageAlt: 'Hisense 90 litre silver refrigerator',
-    description: 'A compact 90-litre Hisense refrigerator in silver, ideal for smaller kitchens, offices and guest rooms.',
-  },
-  {
-    slug: 'hisense-32-fhd-smart-tv',
-    name: 'Hisense 32-inch FHD Smart TV',
-    brand: 'Hisense',
-    category: 'Appliance',
-    price: 190150,
-    badge: 'Smart TV',
-    image: '/images/products/hisense-32-smart-tv.jpg',
-    imageAlt: 'Hisense 32-inch full HD smart television',
-    description: 'A genuine 32-inch Hisense Full HD smart television, supplied factory sealed with full manufacturer warranty.',
-  },
+export const products = catalogue as Product[];
+
+export const electronics = products.filter(product => product.department === 'electronics');
+export const solarEquipment = products.filter(product => product.department === 'solar');
+export const packageProducts = products.filter(product => product.department === 'packages');
+
+function packageCapacity(name: string) {
+  const kva = name.match(/([\d.]+)KVA/i)?.[1];
+  const kwh = name.match(/([\d.]+)kWh/i)?.[1];
+  if (kva && kwh) return `${kva}kVA · ${kwh}kWh lithium`;
+  if (kva) return `${kva}kVA catalogue configuration`;
+  return 'Solar package starting point';
+}
+
+function packageSeries(category: string) {
+  if (category === 'Tubular Packages') return 'Tubular';
+  if (category === 'Lithium Packages') return 'Lithium';
+  if (category === 'Commercial Packages') return 'Commercial';
+  return 'Industrial';
+}
+
+function packageTagline(product: Product) {
+  const series = packageSeries(product.category);
+  return `${series} package starting point; final load and site design must be confirmed`;
+}
+
+export function packagesFromProducts(source: Product[]): SolarPackage[] {
+  return source
+    .filter(product => product.department === 'packages')
+    .map(product => ({
+      slug: product.slug,
+      name: product.name,
+      tagline: packageTagline(product),
+      price: product.price,
+      capacity: packageCapacity(product.name),
+      includes: [],
+      series: packageSeries(product.category),
+      image: product.image,
+      productId: product.id,
+    }))
+    .sort((a, b) => a.price - b.price);
+}
+
+export const packages: SolarPackage[] = packagesFromProducts(products);
+
+export type ShopCategory = {
+  slug: string;
+  name: string;
+  shortName: string;
+  image: string;
+  count: number;
+};
+
+const categoryBasics: Omit<ShopCategory, 'count'>[] = [
+  { slug: 'TVs', name: 'TVs & Audio', shortName: 'TVs', image: '/images/categories/tvs.webp' },
+  { slug: 'Fridges & Freezers', name: 'Fridges & Freezers', shortName: 'Fridges', image: '/images/categories/fridges-freezers.webp' },
+  { slug: 'Air Conditioners', name: 'Air Conditioners', shortName: 'ACs', image: '/images/categories/air-conditioners.webp' },
+  { slug: 'Washers & Dryers', name: 'Washers & Dryers', shortName: 'Washers', image: '/images/categories/washers-dryers.webp' },
+  { slug: 'Kitchen & Cooking', name: 'Kitchen & Cooking', shortName: 'Kitchen', image: '/images/categories/kitchen-cooking.webp' },
+  { slug: 'Fans & Coolers', name: 'Fans & Coolers', shortName: 'Fans', image: '/images/categories/fans-coolers.webp' },
+  { slug: 'Solar', name: 'Solar & Inverters', shortName: 'Solar', image: '/images/categories/solar.webp' },
+  { slug: 'Generators & Power', name: 'Generators & Power', shortName: 'Power', image: '/images/categories/generators-power.webp' },
 ];
 
-export const packages: SolarPackage[] = [
-  {
-    slug: 'starter-1-5kva',
-    name: 'Starter 1.5kVA',
-    tagline: 'Lights, fan, TV and decoder',
-    price: 1200000,
-    capacity: '1.5 kVA · home essentials',
-    includes: ['1.5kVA inverter', '220Ah tubular battery', 'Solar panel array', 'Accessories and protective devices', 'Professional installation'],
-  },
-  {
-    slug: 'family-3-5kva',
-    name: 'Family 3.5kVA',
-    tagline: 'Everyday power for a family home',
-    price: 2300000,
-    capacity: '3.5 kVA · expanded home power',
-    includes: ['3.5kVA inverter', '2 × 220Ah tubular batteries', 'Solar panel array', 'Accessories and protective devices', 'Professional installation'],
-    highlight: true,
-  },
-  {
-    slug: 'premium-5kva',
-    name: 'Premium 5kVA',
-    tagline: 'More capacity for appliances',
-    price: 3800000,
-    capacity: '5 kVA · whole-home essentials',
-    includes: ['5kVA inverter', '4 × 220Ah tubular batteries', 'Solar panel array', 'Accessories and protective devices', 'Professional installation'],
-  },
-  {
-    slug: 'lithium-5kva',
-    name: 'Lithium 5kVA',
-    tagline: 'Long-life lithium storage',
-    price: 6000000,
-    capacity: '5 kVA · 10 kWh lithium',
-    includes: ['5kVA hybrid inverter', '10kWh lithium battery', 'Solar panel array', 'Accessories and protective devices', 'Professional installation'],
-  },
-];
+export function shopCategoriesFromProducts(source: Product[]): ShopCategory[] {
+  return categoryBasics.map(category => ({
+    ...category,
+    count: category.slug === 'TVs'
+      ? source.filter(item => item.categoryLabel === 'Televisions' || item.categoryLabel === 'Audio & Sound').length
+      : category.slug === 'Solar'
+        ? source.filter(item => item.department !== 'electronics').length
+        : source.filter(item => item.category === category.slug).length,
+  }));
+}
+
+export const shopCategories: ShopCategory[] = shopCategoriesFromProducts(products);
+
+const offerIds = new Set([1121, 1161, 1192, 1272, 1381, 1401]);
+export const weeklyOffers = products.filter(product => offerIds.has(product.id));
+
+const bestsellerIds = new Set([1121, 1168, 1192, 1255, 1310, 1381, 1401, 1463]);
+export const bestsellers = products.filter(product => bestsellerIds.has(product.id));
 
 export const site = {
   name: 'Leaf Solar Ltd',
@@ -165,7 +135,7 @@ export const site = {
   location: 'Ibadan, Oyo State',
   rcNumber: 'RC7896501',
   tagline: 'Light up your home',
-  sub: 'Genuine solar systems and home appliances from an authorized dealer in Ibadan, with professional installation and fast local delivery.',
+  sub: 'Electronics, home appliances, solar equipment and project-specific solar quotations from an authorized dealer in Ibadan.',
 };
 
 export function whatsappUrl(message = 'Hello Leaf Solar! I have an enquiry.') {
@@ -174,4 +144,10 @@ export function whatsappUrl(message = 'Hello Leaf Solar! I have an enquiry.') {
 
 export function formatNaira(n: number) {
   return '₦' + n.toLocaleString('en-NG');
+}
+
+export function productBadge(product: Product) {
+  if (product.offerBadge) return product.offerBadge;
+  if (product.onSale) return 'Sale';
+  return undefined;
 }

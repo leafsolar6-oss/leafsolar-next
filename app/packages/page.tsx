@@ -1,68 +1,59 @@
 import Link from 'next/link';
-import { packages, formatNaira, whatsappUrl } from '@/lib/data';
+import ProductCard from '@/components/ProductCard';
+import { formatNaira } from '@/lib/data';
+import { getProducts } from '@/lib/catalog-store';
+
+export const dynamic = 'force-dynamic';
 
 export const metadata = {
   title: 'Solar Packages',
-  description: 'Explore professionally installed solar packages for homes and businesses in Nigeria, starting from ₦1.2 million.',
+  description: 'Compare Leaf Solar tubular, lithium, commercial and industrial solar package starting points, subject to confirmed site design and written scope.',
+  alternates: { canonical: '/packages' },
 };
 
-export default function Packages() {
+const groups = [
+  { key: 'tubular', label: 'Tubular', category: 'Tubular Solar', description: 'Catalogue starting points built around tubular battery systems.', tone: 'bg-[#eef6e9]' },
+  { key: 'lithium', label: 'Lithium', category: 'Lithium Solar', description: 'Catalogue starting points built around lithium battery systems.', tone: 'bg-[#edf4f8]' },
+  { key: 'commercial', label: 'Commercial', category: 'Commercial Solar', description: 'Commercial package starting points that require confirmed load and site design.', tone: 'bg-[#f8f1e8]' },
+  { key: 'industrial', label: 'Industrial', category: 'Industrial Solar', description: 'Industrial package starting points that require confirmed load and site design.', tone: 'bg-[#f4eeee]' },
+];
+
+export default async function Packages({ searchParams }: { searchParams: Promise<{ series?: string }> }) {
+  const [{ series }, products] = await Promise.all([searchParams, getProducts()]);
+  const packageProducts = products.filter(product => product.department === 'packages');
+  const availableGroups = groups.filter(group => packageProducts.some(product => product.categoryLabel === group.category));
+  const selectedSeries = availableGroups.some(item => item.key === series) ? series : undefined;
+  const visibleGroups = availableGroups.filter(group => !selectedSeries || group.key === selectedSeries);
   return (
     <>
-      <section className="relative overflow-hidden bg-[#10261a] text-white">
-        <div className="absolute -right-24 -top-24 h-80 w-80 rounded-full border-[60px] border-white/5" />
-        <div className="container-x relative py-16 md:py-20">
-          <p className="text-xs font-extrabold uppercase tracking-[.18em] text-leaf-300">Complete solar solutions</p>
-          <h1 className="mt-3 max-w-3xl font-display text-4xl font-extrabold md:text-6xl">Reliable power, sized around your life.</h1>
-          <p className="mt-5 max-w-2xl text-lg leading-relaxed text-white/70">These packages are practical starting points. We confirm your appliances and usage before finalizing the equipment, protection and installation plan.</p>
-          <div className="mt-7 flex flex-wrap gap-3 text-sm text-white/75">
-            <span className="rounded-full border border-white/15 px-4 py-2">Professional installation</span>
-            <span className="rounded-full border border-white/15 px-4 py-2">Protective devices included</span>
-            <span className="rounded-full border border-white/15 px-4 py-2">Payment plans available</span>
-          </div>
+      <section className="relative overflow-hidden bg-leaf-900 text-white">
+        <div className="absolute inset-0 opacity-30" style={{ backgroundImage: 'radial-gradient(circle at 85% 10%, #5ebd7d 0, transparent 28%), radial-gradient(circle at 15% 100%, #facc15 0, transparent 22%)' }} />
+        <div className="container-wide relative py-14 sm:py-20">
+          <p className="text-xs font-extrabold uppercase tracking-[.18em] text-leaf-200">{packageProducts.length} package starting points · Site review required</p><h1 className="mt-3 max-w-4xl font-display text-4xl font-black leading-[1.02] sm:text-6xl">Reliable power, sized for your home or business.</h1><p className="mt-5 max-w-2xl text-base leading-relaxed text-white/70 sm:text-lg">Compare clearly priced package starting points. We confirm your load, site and final system design before installation.</p>
+          <div className="mt-7 flex flex-wrap gap-3"><Link href="/solar-calculator" className="btn bg-sun-400 text-gray-950 hover:bg-sun-500">Use solar calculator</Link><Link href="/contact" className="btn border border-white/20 bg-white/5 text-white hover:bg-white/10">Request site assessment</Link></div>
+          <div className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-xs font-bold text-white/65"><span>✓ Load and site reviewed</span><span>✓ Written scope confirmed</span><span>✓ Project timing confirmed</span><span>✓ Product-specific warranty confirmed</span></div>
         </div>
       </section>
 
-      <section className="container-x py-16 md:py-20">
-        <div className="grid gap-6 md:grid-cols-2">
-          {packages.map((packageItem, index) => (
-            <article key={packageItem.slug} id={packageItem.slug} className={`scroll-mt-32 rounded-3xl border p-7 md:p-9 ${packageItem.highlight ? 'border-leaf-600 bg-leaf-50/50 ring-2 ring-leaf-600/15' : 'border-gray-200 bg-white'}`}>
-              <div className="flex items-start justify-between gap-4">
-                <span className="text-xs font-extrabold uppercase tracking-[.18em] text-gray-400">Package 0{index + 1}</span>
-                {packageItem.highlight && <span className="rounded-full bg-leaf-700 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-white">Most popular</span>}
-              </div>
-              <h2 className="mt-5 font-display text-3xl font-bold">{packageItem.name}</h2>
-              <p className="mt-1 text-gray-500">{packageItem.tagline}</p>
-              <div className="mt-6 flex flex-wrap items-end gap-x-3 gap-y-1">
-                <span className="text-4xl font-extrabold text-leaf-700">{formatNaira(packageItem.price)}</span>
-                <span className="pb-1 text-sm text-gray-500">starting price</span>
-              </div>
-              <p className="mt-2 text-sm font-semibold text-gray-700">{packageItem.capacity}</p>
+      <div className="sticky top-[7.85rem] z-30 border-b border-gray-100 bg-white/95 backdrop-blur lg:top-[9.85rem]">
+        <nav className="container-wide scrollbar-none flex h-14 items-center gap-2 overflow-x-auto" aria-label="Solar package series"><Link href="/packages" className={`shrink-0 rounded-lg px-4 py-2 text-xs font-extrabold ${!selectedSeries ? 'bg-leaf-700 text-white' : 'bg-gray-100 text-gray-700'}`}>All packages</Link>{availableGroups.map(group => <Link key={group.key} href={`/packages?series=${group.key}`} className={`shrink-0 rounded-lg px-4 py-2 text-xs font-extrabold ${selectedSeries === group.key ? 'bg-leaf-700 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>{group.label}</Link>)}</nav>
+      </div>
 
-              <div className="my-7 h-px bg-gray-200" />
-              <p className="text-xs font-bold uppercase tracking-wider text-gray-500">Package includes</p>
-              <ul className="mt-4 grid gap-3 text-gray-700 sm:grid-cols-2">
-                {packageItem.includes.map(item => <li key={item} className="flex gap-2"><span className="font-bold text-leaf-600">✓</span><span>{item}</span></li>)}
-              </ul>
-
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <Link href={`/contact?pkg=${packageItem.slug}`} className="btn btn-primary flex-1">Request this package</Link>
-                <a href={whatsappUrl(`Hello Leaf Solar! I would like a quote for the ${packageItem.name} package.`)} className="btn btn-outline">Ask on WhatsApp</a>
-              </div>
-            </article>
-          ))}
+      <section className="container-wide py-12 sm:py-16">
+        <div className="space-y-16">
+          {visibleGroups.map(group => {
+            const list = packageProducts.filter(product => product.categoryLabel === group.category).sort((a, b) => a.price - b.price);
+            return (
+              <section key={group.key} id={group.key}>
+                <div className={`flex flex-col justify-between gap-4 rounded-2xl p-6 sm:flex-row sm:items-end sm:p-8 ${group.tone}`}><div><p className="text-xs font-black uppercase tracking-[.16em] text-leaf-700">{list.length} systems</p><h2 className="mt-2 font-display text-3xl font-black sm:text-4xl">{group.label} packages</h2><p className="mt-2 max-w-2xl text-sm text-gray-600">{group.description}</p></div><div className="shrink-0 sm:text-right"><span className="text-xs text-gray-500">Starting from</span><b className="block font-display text-2xl font-black text-leaf-700">{formatNaira(Math.min(...list.map(item => item.price)))}</b></div></div>
+                <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">{list.map(product => <ProductCard key={product.id} product={product} />)}</div>
+              </section>
+            );
+          })}
         </div>
 
-        <div className="mt-10 rounded-3xl bg-gray-950 p-8 text-white md:flex md:items-center md:justify-between md:gap-10 md:p-10">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-[.16em] text-leaf-300">Commercial &amp; industrial</p>
-            <h2 className="mt-2 font-display text-2xl font-bold">Need more than 5kVA?</h2>
-            <p className="mt-2 max-w-2xl text-white/65">We also design larger lithium, commercial and industrial systems for offices, hospitality, schools and other facilities.</p>
-          </div>
-          <Link href="/contact" className="btn mt-6 shrink-0 bg-white text-gray-950 hover:bg-gray-100 md:mt-0">Talk to our team</Link>
-        </div>
-
-        <p className="mt-6 text-xs leading-relaxed text-gray-500">Package prices are starting estimates and may change with final load assessment, site conditions, component selection and market pricing. A written quotation confirms the final scope.</p>
+        <div className="mt-16 rounded-3xl bg-gray-950 p-7 text-white sm:flex sm:items-center sm:justify-between sm:gap-10 sm:p-10"><div><p className="text-xs font-black uppercase tracking-[.16em] text-sun-400">Need a custom configuration?</p><h2 className="mt-2 font-display text-2xl font-black sm:text-3xl">We design around your actual load.</h2><p className="mt-2 max-w-2xl text-sm leading-relaxed text-white/60">Final component choices depend on your appliance ratings, desired runtime, roof space, cable routes and distribution board.</p></div><Link href="/contact" className="btn mt-6 shrink-0 bg-white text-gray-950 hover:bg-gray-100 sm:mt-0">Talk to Leaf Solar</Link></div>
+        <p className="mt-6 text-xs leading-relaxed text-gray-500">Published prices are catalogue starting points. The final written quotation confirms equipment, installation scope, delivery and any site-specific work.</p>
       </section>
     </>
   );

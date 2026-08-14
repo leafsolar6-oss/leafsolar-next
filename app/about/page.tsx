@@ -6,10 +6,10 @@ export const metadata = {
 };
 
 const values = [
-  { title: 'Genuine only', description: 'We supply original, factory-sealed products from trusted manufacturers, backed by the applicable manufacturer warranty.' },
-  { title: 'Clear recommendations', description: 'We start with what you need to power, then recommend a practical system instead of pushing the biggest package.' },
-  { title: 'Complete service', description: 'Solar design, equipment, protection, installation and after-sales guidance are handled by one accountable team.' },
-  { title: 'Fast local delivery', description: 'We serve customers from our Ibadan shop and arrange same-day or next-day local delivery where available.' },
+  { title: 'Product-specific details', description: 'Specifications and warranty terms are shown only when confirmed for the product; otherwise, customers are asked to confirm them before purchase.' },
+  { title: 'Clear recommendations', description: 'Solar planning starts with the customer’s load and site needs before the final system and scope are confirmed.' },
+  { title: 'Written solar scope', description: 'Equipment, protection, installation work and after-sales arrangements apply only where they are identified in the project quotation.' },
+  { title: 'Managed delivery', description: 'Delivery is free within Ibadan; destinations outside Ibadan receive an owner-approved quote before payment.' },
 ];
 
 export default function About() {
@@ -20,7 +20,7 @@ export default function About() {
         <div className="container-x relative py-16 md:py-24">
           <p className="text-xs font-extrabold uppercase tracking-[.18em] text-leaf-300">About Leaf Solar</p>
           <h1 className="mt-4 max-w-4xl font-display text-4xl font-extrabold leading-tight md:text-6xl">One company for better power and better living.</h1>
-          <p className="mt-6 max-w-2xl text-lg leading-relaxed text-white/70">Leaf Solar &amp; Electronics is a registered Nigerian business and Fouani Authorized Dealer based in Ibadan. We supply genuine appliances and deliver complete solar solutions for homes and businesses.</p>
+          <p className="mt-6 max-w-2xl text-lg leading-relaxed text-white/70">Leaf Solar &amp; Electronics is a registered Nigerian business and Fouani Authorized Dealer based in Ibadan. We catalogue appliances and solar equipment and prepare project-specific solar quotations for homes and businesses.</p>
           <div className="mt-8 flex flex-wrap gap-3 text-sm font-semibold">
             <span className="rounded-full border border-white/15 bg-white/5 px-4 py-2">{site.rcNumber}</span>
             <span className="rounded-full border border-white/15 bg-white/5 px-4 py-2">Fouani Authorized Dealer</span>
@@ -35,9 +35,9 @@ export default function About() {
           <h2 className="section-title mt-3">Built to remove the uncertainty from buying power equipment.</h2>
         </div>
         <div className="space-y-5 text-lg leading-relaxed text-gray-600">
-          <p>Leaf Solar started with a straightforward mission: help customers avoid fake products, unclear specifications and unreliable fulfilment. Every item we sell is selected around authenticity, useful warranty cover and dependable service.</p>
-          <p>Our electronics catalogue includes TVs, refrigerators, air conditioners, washers, kitchen appliances and more. Our solar team supplies inverters, batteries, panels and complete installed packages—from home essentials to larger commercial systems.</p>
-          <p>Whether you are replacing an appliance or planning a solar installation, you deal with real people who can explain the options clearly and stay accountable after delivery.</p>
+          <p>Leaf Solar brings appliance shopping and solar planning into one catalogue, while keeping product-specific specifications, warranty terms and project scope subject to confirmation.</p>
+          <p>Our electronics catalogue includes TVs, refrigerators, air conditioners, washers, kitchen appliances and more. The solar range includes inverters, batteries, panels and package starting points for homes and larger commercial projects.</p>
+          <p>Whether you are replacing an appliance or planning a solar project, the Leaf Solar team can discuss the options and confirm the details that apply to the product, delivery address or installation scope.</p>
         </div>
       </section>
 
