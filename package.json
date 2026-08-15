@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
+    "test:calculator": "tsx scripts/test_solar_calculator.ts",
     "test:checkout": "NODE_OPTIONS=--conditions=react-server tsx scripts/test_checkout.ts",
     "test:storefront": "tsx scripts/test_storefront.ts"
   },
