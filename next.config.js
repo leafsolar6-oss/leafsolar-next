@@ -13,6 +13,8 @@ const nextConfig = {
   async redirects() {
     return [
       { source: '/shop', destination: '/products', permanent: true },
+      { source: '/product/:path*', destination: '/products', permanent: true },
+      { source: '/product-category/:path*', destination: '/products', permanent: true },
       { source: '/solar-installation', destination: '/solar-installation-ibadan', permanent: true },
     ];
   },
