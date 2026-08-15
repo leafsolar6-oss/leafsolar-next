@@ -13,6 +13,7 @@ const navigation = [
   { href: '/admin/products/new', label: 'Add product', icon: '+' },
   { href: '/admin/offers', label: 'Offers', icon: '%' },
   { href: '/admin/inventory', label: 'Stock activity', icon: '↕' },
+  { href: '/admin/merchant', label: 'Merchant Center', icon: 'G' },
 ];
 
 export default async function AdminDashboardLayout({ children }: { children: React.ReactNode }) {
