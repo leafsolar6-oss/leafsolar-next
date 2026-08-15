@@ -16,7 +16,9 @@ function absoluteHttpUrl(value: string, base: string) {
 }
 
 export async function GET() {
-  const products = await getProducts({ allowFallback: false });
+  // Keep the feed available during a temporary database outage so scheduled
+  // Merchant Center fetches never fail when the catalogue fallback is healthy.
+  const products = await getProducts({ allowFallback: true });
   const base = (process.env.NEXT_PUBLIC_SITE_URL || 'https://leafsolar.ng').replace(/\/$/, '');
   const items = products.flatMap(product => {
     const primaryImage = absoluteHttpUrl(product.image, base);
