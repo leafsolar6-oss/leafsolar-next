@@ -35,6 +35,7 @@ function refreshStore() {
   revalidatePath('/');
   revalidatePath('/products');
   revalidatePath('/products/[slug]', 'page');
+  revalidatePath('/products/category/[category]', 'page');
   revalidatePath('/home-appliances-ibadan');
   revalidatePath('/solar-products');
   revalidatePath('/packages');

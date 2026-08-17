@@ -4,6 +4,7 @@ import Link from 'next/link';
 import ProductCard from '@/components/ProductCard';
 import { formatNaira, packagesFromProducts, shopCategoriesFromProducts, site, whatsappUrl } from '@/lib/data';
 import { getProducts } from '@/lib/catalog-store';
+import { categorySlug } from '@/lib/categories';
 
 // Serve cached HTML at the edge and refresh from the database at most once a minute.
 // Checkout pricing remains database-authoritative, so displayed prices can lag by at most 60s.
@@ -87,7 +88,7 @@ export default async function Home() {
           </div>
 
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-1 lg:grid-rows-2">
-            <Link href="/products?c=Televisions" className="group relative min-h-[210px] overflow-hidden rounded-[1.5rem] bg-[#f3c928] p-5 sm:p-7 lg:min-h-0">
+            <Link href="/products/category/televisions" className="group relative min-h-[210px] overflow-hidden rounded-[1.5rem] bg-[#f3c928] p-5 sm:p-7 lg:min-h-0">
               <div className="relative z-10 max-w-[58%]">
                 <p className="text-[10px] font-black uppercase tracking-[.16em] text-gray-950/60">Explore televisions</p>
                 <h2 className="mt-2 font-display text-2xl font-black leading-none text-gray-950 sm:text-3xl">Big screens.<br/>Current listings.</h2>
@@ -142,7 +143,7 @@ export default async function Home() {
         </div>
         <div className="scrollbar-none -mx-4 mt-7 flex snap-x gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:grid-cols-4 sm:px-0 lg:grid-cols-8">
           {shopCategories.map(category => (
-            <Link key={category.slug} href={category.slug === 'Solar' ? '/solar-products' : `/products?c=${encodeURIComponent(category.slug === 'TVs' ? 'Televisions' : category.slug)}`} className="group w-[42vw] max-w-[180px] shrink-0 snap-start sm:w-auto sm:max-w-none">
+            <Link key={category.slug} href={category.slug === 'Solar' ? '/solar-products' : `/products/category/${categorySlug(category.slug === 'TVs' ? 'Televisions' : category.slug)}`} className="group w-[42vw] max-w-[180px] shrink-0 snap-start sm:w-auto sm:max-w-none">
               <div className="relative aspect-square overflow-hidden rounded-2xl bg-[#f5f6f2] ring-1 ring-gray-100">
                 <Image src={category.image} alt={category.name} fill sizes="(max-width:640px) 42vw, 14vw" className="object-contain p-2 transition duration-500 group-hover:scale-105" />
               </div>
@@ -195,11 +196,11 @@ export default async function Home() {
       <section className="container-wide py-12 sm:py-16">
         <div className="grid gap-4 lg:grid-cols-2">
           <div className="relative min-h-[310px] overflow-hidden rounded-[1.5rem] bg-[#e8f3e9] p-7 sm:p-10">
-            <div className="relative z-10 max-w-[55%]"><p className="text-xs font-black uppercase tracking-[.15em] text-leaf-700">Kitchen refresh</p><h2 className="mt-3 font-display text-3xl font-black leading-tight sm:text-4xl">Cook smarter.<br/>Live easier.</h2><p className="mt-3 text-sm leading-relaxed text-gray-600">Air fryers, cookers, microwaves, blenders and more.</p><Link href="/products?c=Kitchen%20%26%20Cooking" className="btn btn-dark mt-6 text-sm">Shop kitchen</Link></div>
+            <div className="relative z-10 max-w-[55%]"><p className="text-xs font-black uppercase tracking-[.15em] text-leaf-700">Kitchen refresh</p><h2 className="mt-3 font-display text-3xl font-black leading-tight sm:text-4xl">Cook smarter.<br/>Live easier.</h2><p className="mt-3 text-sm leading-relaxed text-gray-600">Air fryers, cookers, microwaves, blenders and more.</p><Link href="/products/category/kitchen-and-cooking" className="btn btn-dark mt-6 text-sm">Shop kitchen</Link></div>
             <div className="absolute -bottom-12 -right-12 h-[92%] w-[58%]"><Image src="/images/categories/kitchen-cooking.webp" alt="Kitchen appliances" fill sizes="500px" className="object-contain" /></div>
           </div>
           <div className="relative min-h-[310px] overflow-hidden rounded-[1.5rem] bg-[#f9e8df] p-7 sm:p-10">
-            <div className="relative z-10 max-w-[55%]"><p className="text-xs font-black uppercase tracking-[.15em] text-[#9a4824]">Cool your space</p><h2 className="mt-3 font-display text-3xl font-black leading-tight sm:text-4xl">Comfort for<br/>every room.</h2><p className="mt-3 text-sm leading-relaxed text-gray-600">Air conditioners, fans and air coolers.</p><Link href="/products?c=Air%20Conditioners" className="btn btn-dark mt-6 text-sm">Shop cooling</Link></div>
+            <div className="relative z-10 max-w-[55%]"><p className="text-xs font-black uppercase tracking-[.15em] text-[#9a4824]">Cool your space</p><h2 className="mt-3 font-display text-3xl font-black leading-tight sm:text-4xl">Comfort for<br/>every room.</h2><p className="mt-3 text-sm leading-relaxed text-gray-600">Air conditioners, fans and air coolers.</p><Link href="/products/category/air-conditioners" className="btn btn-dark mt-6 text-sm">Shop cooling</Link></div>
             <div className="absolute -bottom-10 -right-12 h-[88%] w-[58%]"><Image src="/images/categories/air-conditioners.webp" alt="Air conditioner" fill sizes="500px" className="object-contain" /></div>
           </div>
         </div>

@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next';
 import { getProducts } from '@/lib/catalog-store';
+import { activeCategories } from '@/lib/categories';
 import { solarGuides } from '@/lib/solar-guides';
 
 const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://leafsolar.ng').replace(/\/$/, '');
@@ -28,6 +29,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     ...staticRoutes.map(route => ({ url: `${siteUrl}${route}`, lastModified: contentUpdated })),
     ...solarGuides.map(guide => ({ url: `${siteUrl}/blog/${guide.slug}`, lastModified: new Date(`${guide.updated}T00:00:00+01:00`) })),
+    ...activeCategories(products).map(category => ({ url: `${siteUrl}/products/category/${category.slug}`, lastModified: contentUpdated })),
     ...products.map(product => ({ url: `${siteUrl}/products/${product.slug}` })),
   ];
 }

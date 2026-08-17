@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import ProductCard from '@/components/ProductCard';
 import { getProducts } from '@/lib/catalog-store';
+import { categoryHref } from '@/lib/categories';
 
 const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://leafsolar.ng').replace(/\/$/, '');
 
@@ -91,7 +92,7 @@ export default async function HomeAppliancesIbadanPage() {
           {availableCategories.map(category => {
             const items = electronics.filter(product => product.categoryLabel === category || product.category === category);
             const id = category.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-            return <section key={category} id={id} className="scroll-mt-44"><div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end"><div className="max-w-3xl"><p className="eyebrow">{items.length} {items.length === 1 ? 'product' : 'products'} listed</p><h2 className="section-title mt-2">{category}</h2><p className="mt-3 text-sm leading-7 text-gray-600">{categoryIntros[category]}</p></div><Link href={`/products?c=${encodeURIComponent(category)}`} className="shrink-0 text-sm font-extrabold text-leaf-700">View the category →</Link></div><div className="mt-7 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">{items.slice(0, 4).map(product => <ProductCard key={product.id} product={product} />)}</div></section>;
+            return <section key={category} id={id} className="scroll-mt-44"><div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end"><div className="max-w-3xl"><p className="eyebrow">{items.length} {items.length === 1 ? 'product' : 'products'} listed</p><h2 className="section-title mt-2">{category}</h2><p className="mt-3 text-sm leading-7 text-gray-600">{categoryIntros[category]}</p></div><Link href={categoryHref(category)} className="shrink-0 text-sm font-extrabold text-leaf-700">View the category →</Link></div><div className="mt-7 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">{items.slice(0, 4).map(product => <ProductCard key={product.id} product={product} />)}</div></section>;
           })}
         </div>
 
