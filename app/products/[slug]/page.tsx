@@ -7,7 +7,9 @@ import ProductPurchaseActions from '@/components/cart/ProductPurchaseActions';
 import { formatNaira, productBadge, site, whatsappUrl } from '@/lib/data';
 import { getProducts } from '@/lib/catalog-store';
 
-export const dynamic = 'force-dynamic';
+// Cached at the edge; refreshed from the database at most once a minute.
+// Checkout pricing remains database-authoritative, so displayed prices can lag by at most 60s.
+export const revalidate = 60;
 
 function absoluteHttpUrl(value: string, baseUrl: string) {
   try {
@@ -38,6 +40,16 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     },
   };
 }
+
+// Prerender every catalogue slug at build time (falls back to the bundled catalogue
+// when the database is unavailable at build). Slugs added later render on demand
+// and are cached the same way.
+export async function generateStaticParams() {
+  const products = await getProducts();
+  return products.map((product) => ({ slug: product.slug }));
+}
+
+export const dynamicParams = true;
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;

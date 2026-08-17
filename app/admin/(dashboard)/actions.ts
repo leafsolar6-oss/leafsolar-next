@@ -34,10 +34,14 @@ function lagosDate(value: string) {
 function refreshStore() {
   revalidatePath('/');
   revalidatePath('/products');
+  revalidatePath('/products/[slug]', 'page');
+  revalidatePath('/home-appliances-ibadan');
+  revalidatePath('/solar-products');
   revalidatePath('/packages');
   revalidatePath('/solar-calculator');
   revalidatePath('/sitemap.xml');
   revalidatePath('/product-feed.xml');
+  revalidatePath('/google-merchant-feed.xml');
 }
 
 const productSchema = z.object({

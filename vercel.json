@@ -2,6 +2,14 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
   "regions": ["cdg1"],
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "www.leafsolar.ng" }],
+      "destination": "https://leafsolar.ng/:path*",
+      "permanent": true
+    }
+  ],
   "headers": [
     {
       "source": "/demo/(.*)",

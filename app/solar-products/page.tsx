@@ -5,7 +5,8 @@ import { getProducts } from '@/lib/catalog-store';
 
 const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://leafsolar.ng').replace(/\/$/, '');
 
-export const dynamic = 'force-dynamic';
+// Cached at the edge; refreshed from the database at most once a minute.
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: 'Solar Panels, Inverters & Batteries in Ibadan',

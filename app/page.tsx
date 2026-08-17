@@ -5,7 +5,9 @@ import ProductCard from '@/components/ProductCard';
 import { formatNaira, packagesFromProducts, shopCategoriesFromProducts, site, whatsappUrl } from '@/lib/data';
 import { getProducts } from '@/lib/catalog-store';
 
-export const dynamic = 'force-dynamic';
+// Serve cached HTML at the edge and refresh from the database at most once a minute.
+// Checkout pricing remains database-authoritative, so displayed prices can lag by at most 60s.
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: { absolute: 'Solar Installation & Appliances in Ibadan | Leaf Solar' },
