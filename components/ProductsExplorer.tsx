@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import ProductCard from '@/components/ProductCard';
 import type { Product } from '@/lib/data';
+import { filterProducts } from '@/lib/product-filters';
 
 const PAGE_SIZE = 24;
 const popularSearches = [
@@ -45,20 +46,14 @@ export default function ProductsExplorer({ products, initial }: { products: Prod
   }, [category, department, products]);
 
   const filtered = useMemo(() => {
-    const searchTerms = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
-    const minimum = minPrice === '' ? null : Number(minPrice);
-    const maximum = maxPrice === '' ? null : Number(maxPrice);
-    const list = products.filter(product => {
-      if (department !== 'all' && product.department !== department) return false;
-      if (category !== 'All' && product.categoryLabel !== category) return false;
-      if (brand !== 'All' && product.brand !== brand) return false;
-      if (availability === 'in' && !product.inStock) return false;
-      if (availability === 'out' && product.inStock) return false;
-      if (minimum !== null && Number.isFinite(minimum) && product.price < minimum) return false;
-      if (maximum !== null && Number.isFinite(maximum) && product.price > maximum) return false;
-      const searchable = `${product.name} ${product.brand} ${product.categoryLabel} ${product.sku}`.toLowerCase();
-      if (searchTerms.length > 0 && !searchTerms.every(term => searchable.includes(term))) return false;
-      return true;
+    const list = filterProducts(products, {
+      q: query,
+      c: category === 'All' ? undefined : category,
+      d: department === 'all' ? undefined : department,
+      b: brand === 'All' ? undefined : brand,
+      min: minPrice || undefined,
+      max: maxPrice || undefined,
+      a: availability === 'all' ? undefined : availability,
     });
     return [...list].sort((a, b) => {
       if (sort === 'low') return a.price - b.price;

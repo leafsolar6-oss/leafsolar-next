@@ -1,7 +1,9 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { notFound } from 'next/navigation';
 import ProductsExplorer from '@/components/ProductsExplorer';
 import { getProducts } from '@/lib/catalog-store';
+import { filterProducts, hasActiveProductFilters } from '@/lib/product-filters';
 
 export const dynamic = 'force-dynamic';
 
@@ -21,6 +23,11 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
 
 export default async function Products({ searchParams }: { searchParams: Promise<ProductSearchParams> }) {
   const [params, products] = await Promise.all([searchParams, getProducts()]);
+  // Zero-result search/filter URLs must return a real 404, not a 200 "No products"
+  // page — Google classifies those as soft 404s and they pollute indexing reports.
+  if (hasActiveProductFilters(params) && filterProducts(products, params).length === 0) {
+    notFound();
+  }
   const categoryCount = new Set(products.map(product => product.category)).size;
   return (
     <>
