@@ -23,6 +23,10 @@ Implemented and validated:
 - Passwordless owner administration for products, galleries, confirmed specifications, inventory, scheduled offers, delivery quotes, verified paid orders, fulfilment, and CSV export
 - Payment verification, idempotent paid-order persistence, and tracked-stock deduction
 - Product and Breadcrumb JSON-LD, canonical handling, sitemap, crawler exclusions, and permanent `/shop` to `/products` redirect
+- Permanent `www.leafsolar.ng` → `leafsolar.ng` redirect (vercel.json host rule, root included)
+- Edge caching: homepage, `/products/[slug]` (prerendered via `generateStaticParams`), `/home-appliances-ibadan` and `/solar-products` use `revalidate = 60` ISR; checkout pricing stays database-authoritative and fail-closed
+- Admin `refreshStore()` purges all storefront paths (including `/products/[slug]` pattern, landing pages and both product feeds) so owner edits appear immediately
+- Zero-result product filter/search URLs return a real 404 via shared `lib/product-filters.ts` (prevents Google soft-404 classification); filtered views with results remain `noindex, follow`
 - Published Shipping & Delivery, Returns, Warranty, and Solar Installation policies approved by the owner on 14 August 2026
 - Responsive storefront and admin interfaces
 
