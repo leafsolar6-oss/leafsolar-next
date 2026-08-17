@@ -4,6 +4,12 @@
   "regions": ["cdg1"],
   "redirects": [
     {
+      "source": "/",
+      "has": [{ "type": "host", "value": "www.leafsolar.ng" }],
+      "destination": "https://leafsolar.ng/",
+      "permanent": true
+    },
+    {
       "source": "/:path*",
       "has": [{ "type": "host", "value": "www.leafsolar.ng" }],
       "destination": "https://leafsolar.ng/:path*",
