@@ -26,6 +26,7 @@ Implemented and validated:
 - Permanent `www.leafsolar.ng` → `leafsolar.ng` redirect (vercel.json host rule, root included)
 - Edge caching: homepage, `/products/[slug]` (prerendered via `generateStaticParams`), `/home-appliances-ibadan` and `/solar-products` use `revalidate = 60` ISR; checkout pricing stays database-authoritative and fail-closed
 - Admin `refreshStore()` purges all storefront paths (including `/products/[slug]` pattern, landing pages and both product feeds) so owner edits appear immediately
+- Static category landing pages at /products/category/<slug> (derived from the live catalogue via lib/categories.ts; 17 pages at launch, 60s ISR, CollectionPage JSON-LD, listed in the sitemap, linked from the homepage and appliance landing)
 - Zero-result product filter/search URLs return a real 404 via shared `lib/product-filters.ts` (prevents Google soft-404 classification); filtered views with results remain `noindex, follow`
 - Security headers on all routes: `X-Content-Type-Options`, `X-Frame-Options: SAMEORIGIN`, `Referrer-Policy`, `Permissions-Policy`, enforced Content-Security-Policy (headless-browser validated across 15 routes + interactions before enforcement), `X-Powered-By` removed via `poweredByHeader: false`
 - Published Shipping & Delivery, Returns, Warranty, and Solar Installation policies approved by the owner on 14 August 2026
