@@ -2,9 +2,11 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import ProductCard from '@/components/ProductCard';
+import HeroCarousel from '@/components/HeroCarousel';
 import { formatNaira, packagesFromProducts, shopCategoriesFromProducts, site, whatsappUrl } from '@/lib/data';
 import { getProducts } from '@/lib/catalog-store';
 import { categorySlug } from '@/lib/categories';
+import { getHeroSlides } from '@/lib/carousel-store';
 
 // Serve cached HTML at the edge and refresh from the database at most once a minute.
 // Checkout pricing remains database-authoritative, so displayed prices can lag by at most 60s.
@@ -46,7 +48,7 @@ function TrustIcon({ name }: { name: string }) {
 }
 
 export default async function Home() {
-  const products = await getProducts();
+  const [products, slides] = await Promise.all([getProducts(), getHeroSlides()]);
   const packages = packagesFromProducts(products);
   const shopCategories = shopCategoriesFromProducts(products);
   const electronicsCount = products.filter(product => product.department === 'electronics').length;
@@ -81,7 +83,7 @@ export default async function Home() {
                 </div>
               </div>
               <div className="relative mt-auto h-[230px] sm:h-[290px] lg:absolute lg:inset-y-0 lg:right-0 lg:h-full lg:w-[52%]">
-                <Image src="/images/hero-appliances.jpg" alt="Televisions, refrigerator, washing machine, cooker, air conditioner and home appliances" fill priority sizes="(max-width: 1024px) 100vw, 50vw" className="object-cover object-center lg:[mask-image:linear-gradient(to_right,transparent_0%,black_28%)]" />
+                <HeroCarousel slides={slides} className="h-full w-full" />
                 <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-[#113e24] to-transparent lg:hidden" />
               </div>
             </div>
