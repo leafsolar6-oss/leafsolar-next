@@ -6,9 +6,6 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 export type Slide = { src: string; alt: string; caption?: string };
 
 const INTERVAL_MS = 3000;
-// The opening slide holds longer before the first rotation: gives the eager
-// hero image its moment and keeps lab LCP measurement anchored to slide one.
-const FIRST_HOLD_MS = 7000;
 
 /**
  * Accessible auto-advancing hero carousel.
@@ -18,23 +15,30 @@ const FIRST_HOLD_MS = 7000;
  */
 export default function HeroCarousel({ slides, className }: { slides: Slide[]; className?: string }) {
   const [index, setIndex] = useState(0);
-  const [hasAdvanced, setHasAdvanced] = useState(false);
   const [paused, setPaused] = useState(false);
+  // Auto-rotation arms on the visitor's first interaction (scroll/touch/key).
+  // Idle loads never rotate: every rotation paints a new full-size image which
+  // resets Google's Largest Contentful Paint — hurting real Core Web Vitals.
+  const [engaged, setEngaged] = useState(false);
   const touchStartX = useRef<number | null>(null);
   const count = slides.length;
 
   const go = useCallback((next: number) => setIndex(((next % count) + count) % count), [count]);
 
   useEffect(() => {
-    if (paused || count <= 1) return;
+    if (engaged) return;
+    const arm = () => setEngaged(true);
+    const events: Array<keyof WindowEventMap> = ['scroll', 'touchstart', 'wheel', 'keydown', 'pointerdown'];
+    events.forEach((event) => window.addEventListener(event, arm, { once: true, passive: true }));
+    return () => events.forEach((event) => window.removeEventListener(event, arm));
+  }, [engaged]);
+
+  useEffect(() => {
+    if (!engaged || paused || count <= 1) return;
     if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const delay = hasAdvanced ? INTERVAL_MS : FIRST_HOLD_MS;
-    const timer = setTimeout(() => {
-      setIndex((current) => (current + 1) % count);
-      setHasAdvanced(true);
-    }, delay);
+    const timer = setTimeout(() => setIndex((current) => (current + 1) % count), INTERVAL_MS);
     return () => clearTimeout(timer);
-  }, [paused, count, hasAdvanced, index]);
+  }, [engaged, paused, count, index]);
 
   if (count === 0) return null;
 
