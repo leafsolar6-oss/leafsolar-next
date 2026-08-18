@@ -14,6 +14,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     '/home-appliances-ibadan',
     '/solar-products',
     '/solar-installation-ibadan',
+    '/gallery',
     '/packages',
     '/solar-calculator',
     '/blog',
