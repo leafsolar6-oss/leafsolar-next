@@ -9,14 +9,14 @@ import { list } from '@vercel/blob';
  * falls back to bundled catalogue imagery so the hero never renders empty.
  */
 
-export type CarouselSlide = { src: string; alt: string };
+export type CarouselSlide = { src: string; alt: string; caption?: string };
 
 export const DEFAULT_HERO_SLIDES: CarouselSlide[] = [
-  { src: '/images/carousel/01-rooftop-array-town.jpg', alt: 'Completed rooftop solar panel array installation overlooking Ibadan' },
-  { src: '/images/carousel/02-commercial-roof-mounting.jpg', alt: 'Commercial rooftop solar mounting by Leaf Solar' },
-  { src: '/images/carousel/03-technician-harness-roof.jpg', alt: 'Leaf Solar technician wearing a safety harness during a rooftop installation' },
-  { src: '/images/carousel/04-lithium-system.jpg', alt: 'Installed lithium battery and inverter system' },
-  { src: '/images/carousel/05-panels-delivery-crew.jpg', alt: 'Leaf Solar crew delivering solar panels' },
+  { src: '/images/carousel/01-rooftop-array-town.jpg', alt: 'Completed rooftop solar panel array installation overlooking Ibadan', caption: 'Rooftop solar array · Ibadan' },
+  { src: '/images/carousel/02-commercial-roof-mounting.jpg', alt: 'Commercial rooftop solar mounting by Leaf Solar', caption: 'Commercial rooftop mounting' },
+  { src: '/images/carousel/03-technician-harness-roof.jpg', alt: 'Leaf Solar technician wearing a safety harness during a rooftop installation', caption: 'Certified technician installation' },
+  { src: '/images/carousel/04-lithium-system.jpg', alt: 'Installed lithium battery and inverter system', caption: 'Lithium battery + inverter system' },
+  { src: '/images/carousel/05-panels-delivery-crew.jpg', alt: 'Leaf Solar crew delivering solar panels', caption: 'Panel delivery · Leaf Solar crew' },
 ];
 
 export const CAROUSEL_ALT = 'Leaf Solar Ibadan — electronics, appliances and solar installations';

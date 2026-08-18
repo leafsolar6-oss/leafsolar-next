@@ -3,9 +3,9 @@
 import Image from 'next/image';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-export type Slide = { src: string; alt: string };
+export type Slide = { src: string; alt: string; caption?: string };
 
-const INTERVAL_MS = 5000;
+const INTERVAL_MS = 3000;
 
 /**
  * Accessible auto-advancing hero carousel.
@@ -64,11 +64,19 @@ export default function HeroCarousel({ slides, className }: { slides: Slide[]; c
             fill
             priority={i === 0}
             sizes="(max-width: 1024px) 100vw, 50vw"
-            className="object-cover object-center lg:[mask-image:linear-gradient(to_right,transparent_0%,black_28%)]"
+            className="object-cover object-center lg:object-contain lg:p-3"
             draggable={false}
           />
         </div>
       ))}
+
+      {slides[index]?.caption && (
+        <div className="pointer-events-none absolute bottom-10 left-3 z-10 hidden max-w-[70%] lg:block">
+          <span className="inline-block rounded-full bg-black/55 px-4 py-2 text-xs font-bold text-white backdrop-blur">
+            {slides[index].caption}
+          </span>
+        </div>
+      )}
 
       {count > 1 && (
         <>
