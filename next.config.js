@@ -17,6 +17,9 @@ const nextConfig = {
       { source: '/product/:path*', destination: '/products', permanent: true },
       { source: '/product-category/:path*', destination: '/products', permanent: true },
       { source: '/solar-installation', destination: '/solar-installation-ibadan', permanent: true },
+      { source: '/solar-packages', destination: '/packages', permanent: true },
+      { source: '/about-us', destination: '/about', permanent: true },
+      { source: '/contact-us', destination: '/contact', permanent: true },
     ];
   },
   async headers() {
