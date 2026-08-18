@@ -84,7 +84,7 @@ export default function HeroCarousel({ slides, className }: { slides: Slide[]; c
             type="button"
             onClick={() => go(index - 1)}
             aria-label="Previous photo"
-            className="absolute left-2 top-1/2 z-10 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full bg-black/35 text-white backdrop-blur transition hover:bg-black/60 sm:left-3 sm:h-10 sm:w-10"
+            className="absolute left-2 top-1/2 z-10 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-black/35 text-white backdrop-blur transition hover:bg-black/60 sm:left-3"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6" /></svg>
           </button>
@@ -92,11 +92,11 @@ export default function HeroCarousel({ slides, className }: { slides: Slide[]; c
             type="button"
             onClick={() => go(index + 1)}
             aria-label="Next photo"
-            className="absolute right-2 top-1/2 z-10 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full bg-black/35 text-white backdrop-blur transition hover:bg-black/60 sm:right-3 sm:h-10 sm:w-10"
+            className="absolute right-2 top-1/2 z-10 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-black/35 text-white backdrop-blur transition hover:bg-black/60 sm:right-3"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg>
           </button>
-          <div className="absolute inset-x-0 bottom-3 z-10 flex items-center justify-center gap-2">
+          <div className="absolute inset-x-0 bottom-3 z-10 flex items-center justify-center gap-1">
             {slides.map((slide, i) => (
               <button
                 key={slide.src}
@@ -104,8 +104,14 @@ export default function HeroCarousel({ slides, className }: { slides: Slide[]; c
                 onClick={() => go(i)}
                 aria-label={`Go to photo ${i + 1}`}
                 aria-current={i === index}
-                className={`h-2 rounded-full transition-all ${i === index ? 'w-6 bg-white' : 'w-2 bg-white/50 hover:bg-white/80'}`}
-              />
+                className="grid h-9 w-9 place-items-center" /* 36px touch target */
+              >
+                <span
+                  className={`block h-2 w-7 origin-center rounded-full transition-transform duration-300 ${
+                    i === index ? 'scale-x-100 bg-white' : 'scale-x-[0.29] bg-white/60 hover:bg-white/90'
+                  }`}
+                />
+              </button>
             ))}
           </div>
         </>
