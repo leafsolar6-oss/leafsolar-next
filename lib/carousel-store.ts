@@ -12,10 +12,11 @@ import { list } from '@vercel/blob';
 export type CarouselSlide = { src: string; alt: string };
 
 export const DEFAULT_HERO_SLIDES: CarouselSlide[] = [
-  { src: '/images/hero-appliances.jpg', alt: 'Televisions, refrigerator, washing machine, cooker, air conditioner and home appliances' },
-  { src: '/images/categories/solar.webp', alt: 'Solar panels, battery and inverter equipment' },
-  { src: '/images/categories/tvs.webp', alt: 'Smart televisions from the Leaf Solar catalogue' },
-  { src: '/images/categories/fridges-freezers.webp', alt: 'Refrigerators and freezers from the Leaf Solar catalogue' },
+  { src: '/images/carousel/01-rooftop-array-town.jpg', alt: 'Completed rooftop solar panel array installation overlooking Ibadan' },
+  { src: '/images/carousel/02-commercial-roof-mounting.jpg', alt: 'Commercial rooftop solar mounting by Leaf Solar' },
+  { src: '/images/carousel/03-technician-harness-roof.jpg', alt: 'Leaf Solar technician wearing a safety harness during a rooftop installation' },
+  { src: '/images/carousel/04-lithium-system.jpg', alt: 'Installed lithium battery and inverter system' },
+  { src: '/images/carousel/05-panels-delivery-crew.jpg', alt: 'Leaf Solar crew delivering solar panels' },
 ];
 
 export const CAROUSEL_ALT = 'Leaf Solar Ibadan — electronics, appliances and solar installations';
