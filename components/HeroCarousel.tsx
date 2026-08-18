@@ -54,8 +54,16 @@ export default function HeroCarousel({ slides, className }: { slides: Slide[]; c
       {slides.map((slide, i) => (
         <div
           key={slide.src}
-          className="absolute inset-0 transition-opacity duration-700 ease-out"
-          style={{ opacity: i === index ? 1 : 0 }}
+          className="absolute inset-0"
+          style={{
+            opacity: i === index ? 1 : 0,
+            visibility: i === index ? 'visible' : 'hidden',
+            // visibility flips instantly on show but only AFTER the fade-out finishes,
+            // so hidden slides never paint (keeps LCP pinned to the eager first slide)
+            transition: i === index
+              ? 'opacity 700ms ease-out, visibility 0s 0s'
+              : 'opacity 700ms ease-out, visibility 0s 700ms',
+          }}
           aria-hidden={i !== index}
         >
           <Image
