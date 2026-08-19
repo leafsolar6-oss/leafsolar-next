@@ -65,6 +65,14 @@ export default function ProductsExplorer({ products, initial }: { products: Prod
   }, [availability, brand, category, department, maxPrice, minPrice, products, query, sort]);
 
   const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+
+  // Fallback content for empty searches: current offers, then featured, then anything.
+  const popular = useMemo(() => {
+    const pool = products.filter(product => product.onSale);
+    if (pool.length >= 4) return pool.slice(0, 4);
+    const featured = products.filter(product => product.featured);
+    return [...pool, ...featured.filter(product => !pool.includes(product)), ...products.filter(product => !pool.includes(product) && !featured.includes(product))].slice(0, 4);
+  }, [products]);
   const visible = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   function clear() {
@@ -162,7 +170,20 @@ export default function ProductsExplorer({ products, initial }: { products: Prod
           <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">{visible.map(product => <ProductCard key={product.id} product={product} />)}</div>
         ) : (
           <div className="mt-8 rounded-2xl border border-dashed border-gray-300 bg-gray-50 px-6 py-16 text-center">
-            <h2 className="font-display text-2xl font-extrabold">No products found</h2><p className="mt-2 text-sm text-gray-500">Try another search term or clear the current filters.</p><button onClick={clear} className="btn btn-primary mt-5">Clear filters</button>
+            <h2 className="font-display text-2xl font-extrabold">{query ? <>No results for &ldquo;{query}&rdquo;</> : 'No products found'}</h2>
+              <p className="mt-2 max-w-lg text-sm leading-6 text-gray-500">{query ? "We couldn't match that search, but Leaf Solar stocks televisions, fridges, air conditioners, washing machines, kitchen appliances, fans and solar equipment. Try one of these instead:" : 'Try another search term or clear the current filters.'}</p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {categories.slice(0, 6).map(([name]) => (
+                  <button key={name} onClick={() => { setQuery(''); setDepartment('all'); setCategory(name); setBrand('All'); setPage(1); window.scrollTo({ top: 250, behavior: 'smooth' }); }} className="rounded-full border border-gray-200 bg-white px-4 py-2 text-xs font-bold text-gray-700 transition hover:border-leaf-300 hover:text-leaf-700">{name}</button>
+                ))}
+              </div>
+              <button onClick={clear} className="btn btn-primary mt-5">Clear search &amp; filters</button>
+              {popular.length > 0 && (
+                <div className="mt-10">
+                  <h3 className="section-title">Popular right now</h3>
+                  <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">{popular.map(product => <ProductCard key={product.id} product={product} />)}</div>
+                </div>
+              )}
           </div>
         )}
 

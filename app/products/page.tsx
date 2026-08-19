@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import ProductsExplorer from '@/components/ProductsExplorer';
 import { getProducts } from '@/lib/catalog-store';
-import { filterProducts, hasActiveProductFilters } from '@/lib/product-filters';
+import { filterProducts } from '@/lib/product-filters';
 
 export const dynamic = 'force-dynamic';
 
@@ -23,9 +23,12 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
 
 export default async function Products({ searchParams }: { searchParams: Promise<ProductSearchParams> }) {
   const [params, products] = await Promise.all([searchParams, getProducts()]);
-  // Zero-result search/filter URLs must return a real 404, not a 200 "No products"
-  // page — Google classifies those as soft 404s and they pollute indexing reports.
-  if (hasActiveProductFilters(params) && filterProducts(products, params).length === 0) {
+  // A typed search never dead-ends: zero matches render a helpful suggestions
+  // page instead of a 404. Fabricated facet-only URLs (category/brand/price
+  // combinations with no query) still return a real 404 so Google's soft-404
+  // classification for crawler-discovered filter URLs stays clean.
+  const facetsActive = Boolean(params.c || params.d || params.b || params.min || params.max || params.a);
+  if (facetsActive && !params.q && filterProducts(products, params).length === 0) {
     notFound();
   }
   const categoryCount = new Set(products.map(product => product.category)).size;
