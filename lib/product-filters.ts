@@ -33,7 +33,8 @@ export function filterProducts(products: Product[], filters: ProductFilters): Pr
   const searchTerms = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
   const minimum = minPrice === '' ? null : Number(minPrice);
   const maximum = maxPrice === '' ? null : Number(maxPrice);
-  return products.filter(product => {
+
+  const passesNonSearchFilters = (product: Product) => {
     if (department !== 'all' && product.department !== department) return false;
     if (category !== 'All' && product.categoryLabel !== category) return false;
     if (brand !== 'All' && product.brand !== brand) return false;
@@ -41,8 +42,38 @@ export function filterProducts(products: Product[], filters: ProductFilters): Pr
     if (availability === 'out' && product.inStock) return false;
     if (minimum !== null && Number.isFinite(minimum) && product.price < minimum) return false;
     if (maximum !== null && Number.isFinite(maximum) && product.price > maximum) return false;
-    const searchable = `${product.name} ${product.brand} ${product.categoryLabel} ${product.sku}`.toLowerCase();
-    if (searchTerms.length > 0 && !searchTerms.every(term => searchable.includes(term))) return false;
     return true;
-  });
+  };
+
+  // A term can match directly, or via its leading characters — this keeps
+  // plurals and single-character typos ("ovens" -> "oven", "micowave" variants) working.
+  const termVariants = (term: string) => (term.length > 3 ? [term, term.slice(0, -1)] : [term]);
+  const termMatches = (term: string, searchable: string) =>
+    termVariants(term).some((variant) => variant.length > 1 && searchable.includes(variant));
+
+  const searchableOf = (product: Product) =>
+    `${product.name} ${product.brand} ${product.categoryLabel} ${product.sku}`.toLowerCase();
+
+  const strict = products.filter(
+    (product) => passesNonSearchFilters(product) && searchTerms.every((term) => termMatches(term, searchableOf(product))),
+  );
+  if (strict.length > 0 || searchTerms.length === 0) return strict;
+
+  // Smart fallback: nothing matched every word, so rank by how many words (and where) matched.
+  // "microwave oven" with no combined match still surfaces every microwave and every oven.
+  return products
+    .filter(passesNonSearchFilters)
+    .map((product) => {
+      const searchable = searchableOf(product);
+      const name = product.name.toLowerCase();
+      let score = 0;
+      for (const term of searchTerms) {
+        if (!termMatches(term, searchable)) continue;
+        score += name.includes(term) ? 4 : 2;
+      }
+      return { product, score };
+    })
+    .filter((entry) => entry.score > 0)
+    .sort((a, b) => b.score - a.score || a.product.id - b.product.id)
+    .map((entry) => entry.product);
 }
